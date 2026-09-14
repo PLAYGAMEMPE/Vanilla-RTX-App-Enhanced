@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Window.Title" xml:space="preserve"><value>Explorar paquetes</value></data>
+  <data name="EmptyState_NoPacksInstalled" xml:space="preserve"><value>¡Parece que no tienes ningún paquete de recursos instalado! Empieza importando tus paquetes aquí, o instala Vanilla RTX desde el menú principal.</value></data>
+  <data name="SelectAllButton_ToolTip" xml:space="preserve"><value>Selecciona todos por etiqueta o deselecciona todos</value></data>
+  <data name="ConfirmButton_Text" xml:space="preserve"><value>Confirmar selección</value></data>
+  <data name="ConfirmButton_ToolTip" xml:space="preserve"><value>Confirma la selección y regresa al menú principal</value></data>
+  <data name="AddPackButton_Text" xml:space="preserve"><value>Importar más paquetes de recursos</value></data>
+  <data name="AddPackButton_ToolTip" xml:space="preserve"><value>Te permite importar tus paquetes de recursos en lote, es compatible con los formatos .zip y .mcpacks, múltiples paquetes incluidos dentro de .mcaddon, y también con la importación en lote de paquetes dentro de una carpeta.</value></data>
+  <data name="WindowTitle_SelectFromPacks" xml:space="preserve"><value>Selecciona entre tus paquetes de recursos de {0}</value></data>
+  <data name="AddPackDescription_DragDropImport" xml:space="preserve"><value>Selecciona o arrastra y suelta aquí los archivos de paquetes de recursos para importarlos a {0} (.mcpack, .zip)</value></data>
+  <data name="DragUI_ImportPack" xml:space="preserve"><value>Importar paquete</value></data>
+  <data name="OverwriteDialog_Title" xml:space="preserve"><value>El paquete ya está instalado</value></data>
+  <data name="OverwriteDialog_Content" xml:space="preserve"><value>"{0}" ya está instalado en "{1}".
+
+¿Deseas reemplazarlo con la versión entrante?</value></data>
+  <data name="OverwriteDialog_PrimaryButtonText" xml:space="preserve"><value>Reemplazar</value></data>
+  <data name="OverwriteDialog_CloseButtonText" xml:space="preserve"><value>Omitir</value></data>
+  <data name="NonResourceDialog_Title" xml:space="preserve"><value>No es un paquete de recursos</value></data>
+  <data name="NonResourceDialog_Content" xml:space="preserve"><value>"{0}" no parece ser un paquete de recursos; no se encontró ningún módulo de tipo "resources" en su manifiesto.
+
+¿Deseas importarlo de todos modos?</value></data>
+  <data name="NonResourceDialog_PrimaryButtonText" xml:space="preserve"><value>Importar de todos modos</value></data>
+  <data name="NonResourceDialog_CloseButtonText" xml:space="preserve"><value>Omitir</value></data>
+  <data name="EmptyState_NoPacksFoundPreview" xml:space="preserve"><value>No se encontraron paquetes en el directorio de datos de Minecraft Preview.</value></data>
+  <data name="EmptyState_NoPacksFound" xml:space="preserve"><value>No se encontraron paquetes en el directorio de datos de Minecraft.</value></data>
+  <data name="EmptyState_ErrorPrefix" xml:space="preserve"><value>Error: {0}</value></data>
+  <data name="Tag_IncludeAllWithTag" xml:space="preserve"><value>Incluir todos con la etiqueta "{0}"</value></data>
+  <data name="SelectAllMenu_SelectAll" xml:space="preserve"><value>Seleccionar todos</value></data>
+  <data name="SelectAllMenu_DeselectAll" xml:space="preserve"><value>Deseleccionar todos</value></data>
+  <data name="Badge_VersionPrefix" xml:space="preserve"><value>Versión: {0}</value></data>
+  <data name="Tag_Incompatible" xml:space="preserve"><value>Incompatible con Tuner</value></data>
+  <data name="Tag_RayTraced" xml:space="preserve"><value>Trazado de rayos</value></data>
+</root>

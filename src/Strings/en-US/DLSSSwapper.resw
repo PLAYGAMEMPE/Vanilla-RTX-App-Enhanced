@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Window.Title" xml:space="preserve"><value>DLSS Swapper</value></data>
+  <data name="ManualSelectionIntroText.Text" xml:space="preserve"><value>The app couldn't auto-locate your game files using the usual fast methods!&#x0a;A system-wide scan is in progress, there is a high chance it will find your game given enough time.</value></data>
+  <data name="ManualSelectionText.Text" xml:space="preserve"><value>But if it is taking too long? Click to manually navigate to the folder where the game is installed to, it should have a file called Minecraft.Windows.exe inside of it.
+                                   &#x0a;&#x0a;The app is tolerant towards slightly imprecise location selections, it will still try to have a look around no matter where you select, but if you're still having trouble finding out where your game is installed to, join the Vanilla RTX Discord server and ask for help, or try to find out online.</value></data>
+  <data name="EmptyStateText.Text" xml:space="preserve"><value>No DLSS versions cached</value></data>
+  <data name="EmptyState_NoneImported" xml:space="preserve"><value>No DLSS versions imported yet. Download nvngx_dlss.dll files and import them here.</value></data>
+  <data name="EmptyState_LoadError" xml:space="preserve"><value>Error loading DLLs: {0}</value></data>
+  <data name="WindowTitle_SwapFor" xml:space="preserve"><value>Swap DLSS version for {0}</value></data>
+  <data name="Init_Error" xml:space="preserve"><value>Initialization error: {0}</value></data>
+  <data name="Init_CacheFolderError" xml:space="preserve"><value>Could not establish cache folder</value></data>
+  <data name="Init_NoValidPath" xml:space="preserve"><value>No valid Minecraft installation selected</value></data>
+  <data name="Dll_VersionLabel" xml:space="preserve"><value>DLSS {0}</value></data>
+  <data name="Dll_CurrentlyInstalledSuffix" xml:space="preserve"><value> (Currently Installed)</value></data>
+  <data name="Dll_IncompatibleVersion" xml:space="preserve"><value>Incompatible DLSS version. Only import 2.0.0.0 or higher!
+This version will be removed automatically.</value></data>
+  <data name="Dll_ClickToSwap" xml:space="preserve"><value>Click to swap to this version</value></data>
+  <data name="Dll_SwappedTo" xml:space="preserve"><value>Swapped to DLSS {0}</value></data>
+  <data name="AddDll_Title" xml:space="preserve"><value>Add DLSS files</value></data>
+  <data name="AddDll_Description" xml:space="preserve"><value>Drag and drop or browse for a DLSS DLL file to add (.dll or .zip with the dlls)</value></data>
+  <data name="AddDll_DownloadLink" xml:space="preserve"><value>Download DLSS files from here</value></data>
+  <data name="AddDll_DropCaption" xml:space="preserve"><value>Drop to add DLSS files</value></data>
+  <data name="OpenGameFolderButton.Content" xml:space="preserve"><value>Open the game's DLSS folder</value></data>
+  <data name="OpenCacheFolderButton.Content" xml:space="preserve"><value>Open the app's cache folder</value></data>
+  <data name="Footer_GameDllPath" xml:space="preserve"><value>Game DLSS file: {0}</value></data>
+</root>

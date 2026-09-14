@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- ===================== PsaCard ===================== -->
+
+  <data name="PsaCard_DismissForever" xml:space="preserve">
+    <value>Descartar para siempre</value>
+  </data>
+  <data name="PsaCard_DismissForNow" xml:space="preserve">
+    <value>Descartar por ahora</value>
+  </data>
+  <data name="PsaCard_DismissMinutesSingular" xml:space="preserve">
+    <value>Descartar por {0} minuto</value>
+  </data>
+  <data name="PsaCard_DismissMinutesPlural" xml:space="preserve">
+    <value>Descartar por {0} minutos</value>
+  </data>
+  <data name="PsaCard_DismissHoursSingular" xml:space="preserve">
+    <value>Descartar por {0} hora</value>
+  </data>
+  <data name="PsaCard_DismissHoursPlural" xml:space="preserve">
+    <value>Descartar por {0} horas</value>
+  </data>
+  <data name="PsaCard_DismissDaysSingular" xml:space="preserve">
+    <value>Descartar por {0} día</value>
+  </data>
+  <data name="PsaCard_DismissDaysPlural" xml:space="preserve">
+    <value>Descartar por {0} días</value>
+  </data>
+
+  <!-- ===================== ReviewPromptControl ===================== -->
+
+  <data name="ReviewPrompt_MessageIntro" xml:space="preserve">
+    <value>Un mensaje del desarrollador:</value>
+  </data>
+  <data name="ReviewPrompt_MessageBody1" xml:space="preserve">
+    <value>&#x0a;&#x0a;Si has disfrutado la app o te ha resultado útil hasta ahora, &#x0a;puedes patrocinarme a través de mi</value>
+  </data>
+  <data name="ReviewPrompt_KofiLinkText" xml:space="preserve">
+    <value>página de Ko-Fi.</value>
+  </data>
+  <data name="ReviewPrompt_MessageBody2" xml:space="preserve">
+    <value>&#x0a;...¡o simplemente dejando una reseña honesta!&#x0a;&#x0a;Cualquier apoyo ayuda y me anima a seguir con mis proyectos.</value>
+  </data>
+  <data name="ReviewPrompt_MessageBody3" xml:space="preserve">
+    <value>&#x0a;Todos ellos los he publicado y mantenido durante años de forma gratuita, sin anuncios,</value>
+  </data>
+  <data name="ReviewPrompt_MessageBody4" xml:space="preserve">
+    <value>&#x0a;microtransacciones ni ninguna otra tontería que arruine una buena experiencia de usuario.</value>
+  </data>
+  <data name="ReviewPrompt_MessageBody5" xml:space="preserve">
+    <value>&#x0a;Solo le pido a quien crea que esto vale la pena que me ayude a continuarlo.</value>
+  </data>
+  <data name="ReviewPrompt_MessageBody6" xml:space="preserve">
+    <value>&#x0a;La Vanilla RTX App está dedicada a todos.</value>
+  </data>
+  <data name="ReviewPrompt_Signature" xml:space="preserve">
+    <value>&#x0a;- Cubeir</value>
+  </data>
+  <data name="ReviewPrompt_ReviewButton" xml:space="preserve">
+    <value>Dejar una reseña honesta ⭐</value>
+  </data>
+  <data name="ReviewPrompt_LaterButton" xml:space="preserve">
+    <value>Mostrar más tarde</value>
+  </data>
+  <data name="ReviewPrompt_NeverButton" xml:space="preserve">
+    <value>No volver a mostrar</value>
+  </data>
+
+</root>

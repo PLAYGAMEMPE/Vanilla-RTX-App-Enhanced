@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Language_System" xml:space="preserve">
+    <value>Predeterminado del sistema</value>
+  </data>
+  <data name="Language_RestartTitle" xml:space="preserve">
+    <value>Reiniciar para aplicar el idioma</value>
+  </data>
+  <data name="Language_RestartBody" xml:space="preserve">
+    <value>Vanilla RTX App necesita reiniciarse para que el nuevo idioma se aplique en todas partes. Tambien puedes hacerlo mas tarde - la eleccion ya quedo guardada.</value>
+  </data>
+  <data name="Language_RestartNow" xml:space="preserve">
+    <value>Reiniciar ahora</value>
+  </data>
+  <data name="Language_RestartLater" xml:space="preserve">
+    <value>Mas tarde</value>
+  </data>
+
+  <data name="Common_OK" xml:space="preserve">
+    <value>Aceptar</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Si</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+</root>

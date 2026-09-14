@@ -1,0 +1,98 @@
+<UserControl x:Class="Vanilla_RTX_App.Core.ReviewPromptControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             IsTextScaleFactorEnabled="False"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
+
+    <!-- Semi-transparent overlay that blocks all interaction - clicking dismisses (show later) -->
+    <Grid x:Name="RootGrid"
+          Background="#C0000000"
+          Visibility="Collapsed"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch"
+          Tapped="RootGrid_Tapped">
+
+        <!-- Dialog Card -->
+        <Border x:Name="DialogBorder"
+                Padding="24"
+                Margin="24"
+                CornerRadius="8"
+                Background="{ThemeResource SolidBackgroundFillColorBase}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Tapped="DialogBorder_Tapped"
+                Translation="0,0,256">
+            <Border.Shadow>
+                <ThemeShadow />
+            </Border.Shadow>
+
+            <StackPanel Spacing="16">
+                <!-- Header Text -->
+                <TextBlock FontSize="14"
+                           TextWrapping="Wrap"
+                           LineHeight="20"
+                           TextAlignment="Center"
+                           FontWeight="Medium"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+                    <Run x:Name="IntroRun"/>
+                    <Run x:Name="Body1Run"/>
+                    <Hyperlink UnderlineStyle="Single"
+                               NavigateUri="https://ko-fi.com/cubeir">
+                        <Run x:Name="KofiLinkRun"
+                             FontWeight="SemiBold"/>
+                    </Hyperlink>
+                    <Run x:Name="Body2Run" />
+                    <Run x:Name="Body3Run" />
+                    <Run x:Name="Body4Run" />
+                    <Run Text="&#x0a;" />
+                    <Run x:Name="Body5Run" />
+                    <Run x:Name="Body6Run" />
+                    <Run x:Name="SignatureRun" FontWeight="Normal" />
+                </TextBlock>
+
+                <!-- Button Row -->
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Margin="0,8,0,0">
+                    <Button x:Name="ReviewButton"
+                            Padding="16,8"
+                            FontWeight="SemiBold"
+                            MinWidth="130"
+                            Translation="0,0,24">
+                        <Button.Shadow>
+                            <ThemeShadow />
+                        </Button.Shadow>
+                    </Button>
+
+                    <Button x:Name="LaterButton"
+                            Padding="16,8"
+                            FontWeight="Medium"
+                            MinWidth="100"
+                            Translation="0,0,24">
+                        <Button.Shadow>
+                            <ThemeShadow />
+                        </Button.Shadow>
+                    </Button>
+
+                    <Button x:Name="NeverButton"
+                            Padding="16,8"
+
+                            MinWidth="140"
+                            Translation="0,0,24">
+                        <Button.Shadow>
+                            <ThemeShadow />
+                        </Button.Shadow>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,159 @@
+<Window x:Class="Vanilla_RTX_App.Modules.DLSSSwapperWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:Vanilla_RTX_App.Modules"
+        x:Uid="Window">
+
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid>
+        <Border x:Name="LightThemeOverlay"
+                Grid.ColumnSpan="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                IsHitTestVisible="False"
+                Visibility="{ThemeResource LightThemeBackgroundVisibility}"
+                Canvas.ZIndex="-1">
+            <Border.Background>
+                <SolidColorBrush Color="#17373737" />
+            </Border.Background>
+        </Border>
+
+        <!-- Loading Screen -->
+        <Grid x:Name="LoadingPanel"
+              Visibility="Visible"
+              Background="Transparent">
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="20">
+                <ProgressRing IsActive="True"
+                              Width="100"
+                              Height="100" />
+
+                <Button x:Name="ManualSelectionButton"
+                        Visibility="Collapsed"
+                        HorizontalAlignment="Center"
+                        Padding="20,12,20,12"
+                        Style="{ThemeResource AccentButtonStyle}"
+                        Click="ManualSelectionButton_Click">
+                    <StackPanel Spacing="10">
+                        <TextBlock x:Name="ManualSelectionIntroText"
+                                   x:Uid="ManualSelectionIntroText"
+                                   FontSize="15"
+                                   TextAlignment="Center"
+                                   FontWeight="Medium"
+                                   HorizontalAlignment="Center"
+                                   IsTextScaleFactorEnabled="False" />
+                        <TextBlock x:Name="ManualSelectionText"
+                                   x:Uid="ManualSelectionText"
+                                   FontSize="13"
+                                   Opacity="0.8"
+                                   FontWeight="Medium"
+                                   TextAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="400"
+                                   IsTextScaleFactorEnabled="False" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- DLL Selection UI -->
+        <Grid x:Name="DllSelectionPanel"
+              Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar Area -->
+            <Grid Grid.Row="0"
+                  x:Name="TitleBarArea"
+                  Background="Transparent">
+                <!-- Centered Title -->
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                    <TextBlock Text=""
+                               Margin="0,0,0,0"
+                               VerticalAlignment="Center"
+                               IsTextScaleFactorEnabled="False"
+                               IsHitTestVisible="False"
+                               x:Name="WindowTitle" />
+                </Grid>
+            </Grid>
+
+            <!-- DLL List -->
+            <Grid Grid.Row="1">
+                <Grid x:Name="ShadowReceiverGrid" />
+
+                <ScrollViewer Padding="20,0,20,0"
+                              Margin="0,0,0,0"
+                              IsTextScaleFactorEnabled="False"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <StackPanel x:Name="DLSSAnnouncementsPanel"
+                                    Spacing="12"
+                                    Margin="0,0,0,0" />
+                        <StackPanel x:Name="DllListContainer"
+                                    Spacing="8"
+                                    Padding="0,0,0,8"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Empty State -->
+            <StackPanel x:Name="EmptyStatePanel"
+                        Grid.Row="1"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Spacing="12">
+                <FontIcon Glyph="&#xF158;"
+                          FontSize="48"
+                          IsTextScaleFactorEnabled="False"
+                          Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                <TextBlock x:Name="EmptyStateText"
+                           x:Uid="EmptyStateText"
+                           FontSize="14"
+                           IsTextScaleFactorEnabled="False"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+
+            <!-- Footer: direct access to the real files, to back up or replace the DLL by hand -->
+            <Border Grid.Row="2"
+                    Padding="20,10,20,14"
+                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                    BorderThickness="0,1,0,0"
+                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+                <StackPanel Spacing="6">
+                    <TextBlock x:Name="GameDllPathText"
+                               FontSize="11"
+                               Opacity="0.7"
+                               IsTextSelectionEnabled="True"
+                               TextWrapping="Wrap"
+                               IsTextScaleFactorEnabled="False" />
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="16">
+                        <HyperlinkButton x:Name="OpenGameFolderButton"
+                                         x:Uid="OpenGameFolderButton"
+                                         Content="Open the game's DLSS folder"
+                                         Padding="0"
+                                         Click="OpenGameFolderButton_Click"
+                                         IsTextScaleFactorEnabled="False" />
+                        <HyperlinkButton x:Name="OpenCacheFolderButton"
+                                         x:Uid="OpenCacheFolderButton"
+                                         Content="Open the app's cache folder"
+                                         Padding="0"
+                                         Click="OpenCacheFolderButton_Click"
+                                         IsTextScaleFactorEnabled="False" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

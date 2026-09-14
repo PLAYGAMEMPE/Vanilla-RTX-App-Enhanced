@@ -1,0 +1,359 @@
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vanilla_RTX_App.Modules.Alchitex.Tools; // PbrStripper
+
+namespace Vanilla_RTX_App.Modules.Alchitex.Core;
+
+/// <summary>
+/// Which part of the pipeline a progress report came from. Exists so the UI can react to
+/// what's actually happening (the reactor button's animation, ReactorAnimator) without
+/// pattern-matching on StatusText, which is display copy and free to change. A new stage in
+/// RunAsync gets a value here and a behavior in ReactorAnimator.Pulse.
+/// </summary>
+public enum AlchitexPhase
+{
+    Staging,
+    StrippingPbr,
+    ScanningTextures,
+    GeneratingTextures,
+    WaterAndGlass,
+    Fog,
+    Finalizing,
+    Bookkeeping,
+    /// <summary>Not reported by the pipeline - the window raises it while uninstalling an
+    /// original pack after a successful run, which is its own kind of work worth showing.</summary>
+    RemovingPack,
+    Done,
+}
+
+/// <summary>
+/// Single entry point for turning one selected candidate pack into its RTX-enabled
+/// version. Call once per pack.
+///
+/// Alchitex never touches the pack the user selected directly - every run works on a
+/// disposable "alchitex_temp_*" copy (AlchitexStaging) that only ever gets promoted to its
+/// final "&lt;name&gt;_RTX" name if the whole pipeline succeeds. Anything else - failure,
+/// cancellation, the app closing mid-run - just leaves that temp copy behind for
+/// AlchitexStaging.CleanupOrphanedTempFolders to sweep up.
+///
+/// Order:
+///   1. Stage a working copy under a temp name next to the source pack, and - only when
+///      the user confirmed it for this pack - strip whatever PBR that copy already had
+///      (PbrStripper), so an "already RTX/Vibrant Visuals" pack can be regenerated from
+///      its color textures instead of being skipped wholesale.
+///   2. Generate texture sets: write missing .texture_set.json descriptors
+///      (PbrGeneration.TextureSetOrchestrator), then discover what actually needs
+///      generating and generate MERS + normal-or-heightmap pixels for it.
+///   3. Water & glass passes (PostProcess).
+///   4. Manifest, terrain_texture.json, icon, and bookkeeping files (PostProcess).
+///   5. Promote the temp copy to its final name - only reached on full success.
+/// </summary>
+public static class AlchitexPipeline
+{
+    public readonly record struct AlchitexProgress(
+        int Completed,
+        int Total,
+        string StatusText,
+        AlchitexPhase Phase = AlchitexPhase.Staging);
+
+    public sealed record AlchitexResult(bool Success, string? OutputPackPath, string? ErrorMessage, string? FinalManifestName = null);
+
+    public static async Task<AlchitexResult> RunAsync(
+        string sourcePackPath,
+        string packDisplayName,
+        AlchitexOptions options,
+        string alchitexAssetsPath,
+        string appVersion,
+        IProgress<AlchitexProgress>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        string? workingPackPath = null;
+
+        try
+        {
+            progress?.Report(new AlchitexProgress(0, 0, "Staging working copy...", AlchitexPhase.Staging));
+            workingPackPath = await Task.Run(() => AlchitexStaging.CreateTempCopy(sourcePackPath, cancellationToken), cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // ── Phase 1b: strip pre-existing PBR (opt-in, per pack) ──────────
+            // Runs against the staged copy only - the user's own pack is never opened for
+            // writing, so agreeing to "regenerate" a pack can't cost them the original.
+            if (options.StripExistingPbr)
+            {
+                progress?.Report(new AlchitexProgress(0, 0, "Removing existing PBR textures...", AlchitexPhase.StrippingPbr));
+                await Task.Run(() => PbrStripper.Strip(workingPackPath), cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            // ── Phase 2: texture sets ────────────────────────────────────────
+            progress?.Report(new AlchitexProgress(0, 0, "Scanning textures...", AlchitexPhase.ScanningTextures));
+
+            // Off the caller's thread, which is the UI thread. None of this looks heavy and
+            // all of it is: materials.json is ~800KB of JSON, and the orchestrator resolves
+            // every texture set in the pack and probes an image header per texture to
+            // resolve Auto mode. On a 64x pack that is thousands of files, and it was
+            // freezing the window solid - the white titlebar and "not responding" the
+            // developer was seeing mid-run.
+            var (materials, blacklist) = await Task.Run(() =>
+            (
+                MaterialsConfig.Load(AssetUpdater.Resolve(AssetUpdater.MaterialsJson)),
+                PbrBlacklist.Load(AssetUpdater.Resolve(AssetUpdater.PbrBlacklistJson))
+            ), cancellationToken);
+
+            await Task.Run(
+                () => TextureSetOrchestrator.GenerateMissingTextureSets(workingPackPath, options, blacklist, materials),
+                cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await Task.Run(
+                () => GenerateTexturePixels(workingPackPath, materials, options, progress, cancellationToken),
+                cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // ── Phase 3: Texture post processing water & glass, etc.. ───────────────────────────────────────
+            progress?.Report(new AlchitexProgress(0, 0, "Post-processing...", AlchitexPhase.WaterAndGlass));
+            await Task.Run(() => RunWaterGlassPass(workingPackPath, materials), cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (options.AddFog)
+            {
+                progress?.Report(new AlchitexProgress(0, 0, "Adding fog...", AlchitexPhase.Fog));
+                await Task.Run(() => PostProcess.DeployFog(workingPackPath), cancellationToken);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // ── Phase 4: manifest, terrain data, icon ────────────────────────
+            progress?.Report(new AlchitexProgress(0, 0, "Finalizing...", AlchitexPhase.Finalizing));
+            var finalManifestName = await Task.Run(() =>
+            {
+                var name = PostProcess.UpdateManifest(workingPackPath, appVersion);
+                PostProcess.UpdateTerrainTexture(workingPackPath, name);
+                PostProcess.RegeneratePackIcon(workingPackPath, alchitexAssetsPath);
+                return name;
+            }, cancellationToken);
+
+            // Last pass that touches the pack's files, by requirement - it lists what's on
+            // disk at the time it runs.
+            progress?.Report(new AlchitexProgress(0, 0, "Regenerating bookkeeping files...", AlchitexPhase.Bookkeeping));
+            await Task.Run(() => PostProcess.RegenerateBookkeepingFiles(workingPackPath), cancellationToken);
+
+            // Last chance to catch a token signaled during that last phase before the
+            // folder becomes "real" - cooperative cancellation means it might not have
+            // been observed yet.
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var finalPath = await Task.Run(() => AlchitexStaging.PromoteToFinalName(workingPackPath, packDisplayName), CancellationToken.None);
+
+            progress?.Report(new AlchitexProgress(1, 1, "Done.", AlchitexPhase.Done));
+            return new AlchitexResult(true, finalPath, null, finalManifestName);
+        }
+        catch (OperationCanceledException)
+        {
+            Trace.WriteLine($"[ALCHITEX] Pipeline run for '{sourcePackPath}' was cancelled. Working copy '{workingPackPath}' left in place - a cleanup pass will remove it.");
+            return new AlchitexResult(false, null, "Cancelled.");
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"[ALCHITEX] Pipeline run for '{sourcePackPath}' failed: {ex}. Working copy '{workingPackPath}' left in place - a cleanup pass will remove it.");
+            return new AlchitexResult(false, null, ex.Message);
+        }
+    }
+
+    // ── Step 2b: pixel generation ────────────────────────────────────────────
+
+    /// <summary>
+    /// Internal rather than private so the PBR test bench (Tools/PbrTestBench, debug-only)
+    /// can run this exact loop against a scratch folder of textures. It deliberately calls
+    /// this rather than keeping its own copy: the claim-tracking for shared PBR targets, the
+    /// already-generated skip, and ProcessOneTarget's MERS/normal/heightmap decision are all
+    /// things a second implementation would silently drift from.
+    /// </summary>
+    internal static void GenerateTexturePixels(
+        string packRoot,
+        MaterialsConfig materials,
+        AlchitexOptions options,
+        IProgress<AlchitexProgress>? progress,
+        CancellationToken cancellationToken)
+    {
+        var allTargets = TextureSetOrchestrator.DiscoverGenerationTargets(packRoot);
+        var toProcess = allTargets
+            .Where(t => !File.Exists(t.MersPath) || (t.SecondaryPath != null && !File.Exists(t.SecondaryPath)))
+            .ToList();
+
+        var total = toProcess.Count;
+        var completed = 0;
+        progress?.Report(new AlchitexProgress(0, total, "Generating PBR textures...", AlchitexPhase.GeneratingTextures));
+
+        if (total == 0) return;
+
+        // Two texture sets can point at the same physical MERS or normal/heightmap file
+        // (shared textures between blocks). Whichever gets there first claims and
+        // generates it; every other referencer is skipped for that file.
+        var claimedFiles = new ConcurrentDictionary<string, byte>(StringComparer.OrdinalIgnoreCase);
+        bool TryClaim(string? path) => path == null || claimedFiles.TryAdd(Path.GetFullPath(path), 0);
+
+        var parallelOptions = new ParallelOptions
+        {
+            CancellationToken = cancellationToken,
+            MaxDegreeOfParallelism = Environment.ProcessorCount,
+        };
+
+        Parallel.ForEach(toProcess, parallelOptions, target =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                if (TryClaim(target.MersPath) && TryClaim(target.SecondaryPath))
+                {
+                    ProcessOneTarget(target, materials, options);
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"[ALCHITEX] Failed to generate PBR textures for '{target.TextureName}': {ex.Message}");
+            }
+
+            var done = Interlocked.Increment(ref completed);
+            progress?.Report(new AlchitexProgress(done, total, target.TextureName, AlchitexPhase.GeneratingTextures));
+        });
+    }
+
+    private static void ProcessOneTarget(GenerationTarget target, MaterialsConfig materials, AlchitexOptions options)
+    {
+        var material = materials.Resolve(target.TextureName);
+        using var colorBitmap = Helpers.ReadImage(target.ColorPath, maxOpacity: false);
+
+        // Held rather than written immediately: invisible emission is the last thing to
+        // touch it, and that can't happen until every generator has finished reading the
+        // colour bitmap (see below).
+        System.Drawing.Bitmap? mers = null;
+
+        try
+        {
+            if (!File.Exists(target.MersPath))
+                mers = MersGenerator.Generate(colorBitmap, material);
+
+            if (target.SecondaryPath != null && !File.Exists(target.SecondaryPath))
+            {
+                if (target.IsHeightmap)
+                {
+                    using var heightmap = HeightmapGenerator.Generate(colorBitmap, material.Heightmap);
+                    Helpers.WriteImageAsTGA(heightmap, target.SecondaryPath);
+                }
+                else
+                {
+                    // Heightmap params too: the normal map's blue channel is POM, which is
+                    // the same surface relief the heightmap describes, so heightmap.intensity
+                    // has to reach it - see ApplyPomBlueChannel.
+                    using var normal = NormalMapGenerator.Generate(colorBitmap, material.Normal, material.Heightmap);
+                    Helpers.WriteImageAsTGA(normal, target.SecondaryPath);
+                }
+            }
+
+            if (mers == null) return;
+
+            // ── Invisible emission ───────────────────────────────────────────
+            // Deliberately dead last, and the only thing in generation that writes back to
+            // a colour texture. It fills the emission colour into alpha-0 pixels, which
+            // makes those pixels count as real colour data (§4.11) - so doing it any
+            // earlier would feed the invisible region into the MERS, heightmap and normal
+            // contrast domains and shift the *visible* material. Every generator above has
+            // read colorBitmap by this point; nothing else reads it after.
+            if (InvisibleEmission.Apply(colorBitmap, mers, material.InvisibleEmission))
+            {
+                // Always written as a real .tga alongside the source, NEVER as TGA bytes
+                // shoved into whatever extension the source happened to use - that produces
+                // a corrupt file, nothing sniffs its way out of it.
+                //
+                // The extension priority rule (§4.4) is what makes this work without any
+                // cleanup: a texture set names a texture, and the game takes the first of
+                // .tga > .png > .jpg > .jpeg that exists. Writing our .tga therefore wins
+                // outright, and the original is simply never read by the game again.
+                //
+                // The original is deliberately left in place rather than deleted: the rest
+                // of generation resolved its paths before this ran and may still be holding
+                // them, and an already-.tga source is just overwritten here anyway.
+                Helpers.WriteImageAsTGA(colorBitmap, Path.ChangeExtension(target.ColorPath, ".tga"));
+            }
+
+            Helpers.WriteImageAsTGA(mers, target.MersPath);
+        }
+        finally
+        {
+            mers?.Dispose();
+        }
+    }
+
+    // ── Step 3: water & glass ────────────────────────────────────────────────
+
+    private static void RunWaterGlassPass(string packRoot, MaterialsConfig materials)
+    {
+        var blocksFolders = AlchitexStaging.DiscoverBlocksFolders(packRoot);
+
+        // Water, in two phases, and the split is the design.
+        //
+        // Phase one converts whatever each folder has of its own, per folder and per texture
+        // independently - a folder with water_still and water_flow_grey derives one from each
+        // source, and a folder with nothing derives nothing. Subpacks inherit the root pack's
+        // textures at runtime, so a subpack that ships no water of its own needs none written.
+        var anyWaterFound = false;
+
+        foreach (var blocksFolder in blocksFolders)
+        {
+            try
+            {
+                anyWaterFound |= PostProcess.EnsureGreyWaterTextures(blocksFolder);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"[ALCHITEX] Failed processing water textures in '{blocksFolder}': {ex.Message}");
+            }
+        }
+
+        // Phase two is the packaged fallback, and it is reached only when the pack had no
+        // water texture ANYWHERE - which means the game would otherwise fall back to vanilla's
+        // own, and vanilla water renders opaque and rough under RTX. At that point every
+        // blocks folder gets the crystal-clear placeholder, not just the root: there is no
+        // pack water for a subpack to inherit, so leaving any folder empty leaves it broken.
+        //
+        // Deliberately all-or-nothing against the whole pack rather than per folder. A pack
+        // that derived water somewhere has water; dropping a generic placeholder into the
+        // folders that didn't would overwrite nothing useful and could only conflict with
+        // what the pack actually authored.
+        if (!anyWaterFound)
+        {
+            foreach (var blocksFolder in blocksFolders)
+                PostProcess.DeployFallbackWaterZip(blocksFolder);
+        }
+
+        // The blend pass applies to every resolved color texture in the pack (both
+        // pre-existing and freshly generated), since it only ever touches the color layer,
+        // never MERS/normal/heightmap. TextureSetHelper already recurses the whole pack
+        // root, subpacks included - fine to use here since we only need Color.FilePath,
+        // which isn't file-existence-gated the way Mer/NormalOrHeight are.
+        //
+        // Which textures want it is materials.json's answer (blend_suitable), not a name
+        // match - see PostProcess.MakeBlendSuitable for what the name match used to get
+        // wrong. The decision is made here rather than inside the pass so there is exactly
+        // one place that knows the rule.
+        foreach (var rs in TextureSetHelper.ResolveTextureSets(packRoot))
+        {
+            if (rs.Color.FilePath == null) continue;
+            if (!materials.Resolve(Path.GetFileNameWithoutExtension(rs.Color.FilePath)).BlendSuitable) continue;
+
+            try { PostProcess.MakeBlendSuitable(rs.Color.FilePath); }
+            catch (Exception ex) { Trace.WriteLine($"[ALCHITEX] Failed the blend pass on '{rs.Color.FilePath}': {ex.Message}"); }
+        }
+    }
+}

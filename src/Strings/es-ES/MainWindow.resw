@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- ===================== XAML x:Uid-resolved strings ===================== -->
+
+  <data name="LampInteractionButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mantén presionada la tecla Shift y haz clic en la lámpara para copiar los registros de la app y depurar problemas.</value>
+  </data>
+  <data name="ChatButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Invitación al servidor de Discord de Vanilla RTX.</value>
+  </data>
+  <data name="HelpButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Abrir documentación</value>
+  </data>
+  <data name="DonateButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Invita al desarrollador a un café; Vanilla RTX es gratuito y sigue en desarrollo, ¡ayuda a que siga así!</value>
+  </data>
+  <data name="CycleThemeButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Tema: Desconocido</value>
+  </data>
+  <data name="SuspendUIAnimationsToggle.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Desactiva las animaciones únicas de la interfaz mientras esté activo; puede ahorrar algo de batería en portátiles.</value>
+  </data>
+  <data name="LanguageButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Language / Idioma</value>
+  </data>
+  <data name="BrowsePacksButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Selecciona los paquetes de recursos que quieras ajustar, exportar o eliminar; también puedes importar más paquetes a Minecraft desde este menú.</value>
+  </data>
+  <data name="TargetPreviewToggleText.Text" xml:space="preserve">
+    <value>Vista previa</value>
+  </data>
+  <data name="TargetPreviewToggle.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Si está activado, todas las funciones de la app se aplican a Minecraft Preview en lugar de a la versión estable de Minecraft.</value>
+  </data>
+  <data name="PackSelectionOptionsBorder.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Selecciona qué paquetes de Vanilla RTX quieres procesar.&#x0a;&#x0a;Si una casilla no se puede seleccionar, significa que ese paquete no está instalado actualmente; comienza instalando los paquetes de recursos de Vanilla RTX haciendo clic en el botón Obtener los paquetes RTX más recientes.</value>
+  </data>
+  <data name="SidebarLog.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Aquí aparecen los registros relevantes para informarte, guiarte o advertirte mientras interactúas con la app.</value>
+  </data>
+
+  <data name="ClearButtonText.Text" xml:space="preserve">
+    <value>Limpiar selección</value>
+  </data>
+  <data name="ClearButtonBorder.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Limpia todas las secciones de paquetes.</value>
+  </data>
+  <data name="ResetButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Función predeterminada: Restablece las opciones de ajuste a sus valores predeterminados.&#x0a;&#x0a;PARA USUARIOS AVANZADOS: Mantén presionada la tecla Shift mientras haces clic para realizar un restablecimiento completo que borra todos los datos de la app en todas partes, dejándola como si estuviera recién instalada. También puede pedirte revertir a los archivos RTX/LUT predeterminados si es necesario, para que tus valores predeterminados no se pierdan la próxima vez que uses la app.</value>
+  </data>
+  <data name="ResetButton_TextBlock.Text" xml:space="preserve">
+    <value>Restablecer</value>
+  </data>
+
+  <data name="FogMultiplierLabel.Text" xml:space="preserve">
+    <value>Multiplicador de densidad de niebla</value>
+  </data>
+  <data name="FogMultiplierLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Escala todas las densidades de niebla con el multiplicador indicado.&#x0a;&#x0a;Rangos recomendados:&#x0a;0.2–0.8 para niebla más ligera&#x0a;1.5-3.0 para niebla densa&#x0a;0.0 para desactivar la niebla del aire&#x0a;&#x0a;Consejo avanzado: El valor del multiplicador se tratará y aplicará como un valor de densidad literal si la densidad de niebla ya es demasiado pequeña (como 0) para multiplicar.</value>
+  </data>
+
+  <data name="EmissivityMultiplierLabel.Text" xml:space="preserve">
+    <value>Multiplicador de intensidad emisiva</value>
+  </data>
+  <data name="EmissivityMultiplierLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Escala los efectos de brillo de todos los bloques emisivos.&#x0a;&#x0a;Ejemplos:&#x0a;1 = predeterminado&#x0a;0.5 = mitad de brillo&#x0a;valores más altos = efectos de brillo más fuertes en los bloques.</value>
+  </data>
+
+  <data name="AmbientLightLabel.Text" xml:space="preserve">
+    <value>Aumentar iluminación ambiental</value>
+  </data>
+  <data name="AmbientLightLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Modifica la iluminación ambiental cuando se ajusta la emisividad; multiplicadores emisivos más altos intensifican el efecto.&#x0a;&#x0a;Nota: Aplicar esta opción a un paquete de recursos bloqueará que el multiplicador de emisividad se aplique a ese paquete de nuevo, a menos que el paquete se restablezca o reinstale desde cero.</value>
+  </data>
+  <data name="EmissivityAmbientLightToggle.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Interruptor de luz ambiental de emisividad</value>
+  </data>
+  <data name="EmissivityWarningIcon.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Activar esta opción mientras se ajusta un paquete de recursos hará que los futuros intentos de ajuste omitan la aplicación del control deslizante de multiplicador de emisividad a ese paquete; esta protección intencionada evita que el PBR se vea dañado.&#x0a;Además, esta opción está pensada únicamente para paquetes de recursos RTX; no la actives para paquetes de recursos Vibrant Visuals. Usa esta opción con moderación, o como último paso al ajustar un paquete de recursos a tu gusto.</value>
+  </data>
+
+  <data name="NormalIntensityLabel.Text" xml:space="preserve">
+    <value>Intensidad del efecto 3D de superficie</value>
+  </data>
+  <data name="NormalIntensityLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Ajusta la intensidad de los mapas de normales, mapas de altura y mapeo de oclusión de paralaje en porcentaje, si están disponibles.&#x0a;&#x0a;0% = aplana todas las texturas&#x0a;100% = predeterminado (sin cambios)&#x0a;Valores más altos = efectos 3D más intensos en las superficies.</value>
+  </data>
+
+  <data name="MaterialNoiseLabel.Text" xml:space="preserve">
+    <value>Desviación de grano del material</value>
+  </data>
+  <data name="MaterialNoiseLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Agrega detalle adicional a las texturas PBR y reduce la uniformidad añadiendo una capa de ruido a las texturas PBR; afecta más a los valores intermedios y menos a los valores extremos. Afecta menos a los emisivos que a las propiedades de rugosidad y metalicidad.&#x0a;Tu valor determina la desviación máxima posible respecto a los valores originales.</value>
+  </data>
+
+  <data name="RoughenUpLabel.Text" xml:space="preserve">
+    <value>Control de rugosidad</value>
+  </data>
+  <data name="RoughenUpLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Ajusta el equilibrio general de rugosidad y metalicidad de los materiales.&#x0a;&#x0a;Valores más altos producen, en general, superficies brillantes y metales metálicos más débiles o menos frecuentes.&#x0a;Los valores negativos intensifican las superficies brillantes o metálicas.&#x0a;Usa una curva de decaimiento inteligente para afectar los valores extremos relevantes. Mantiene intacta la composición/los valores relativos de cada textura.</value>
+  </data>
+
+  <data name="LazifyNormalsLabel.Text" xml:space="preserve">
+    <value>Suavizar normales de superficie</value>
+  </data>
+  <data name="LazifyNormalsLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Simplifica los mapas de altura y los mapas de normales reduciendo su nivel de detalle.&#x0a;&#x0a;0 = sin cambios&#x0a;255 = totalmente simplificado&#x0a;Los paquetes de recursos que ya son de baja calidad podrían no mostrar cambios o incluso mejorar ligeramente, mientras que los paquetes de mayor calidad pueden recibir una capa adicional de detalle, para lo cual generalmente se recomienda un valor pequeño, menor a 20.</value>
+  </data>
+
+  <data name="TuneSelectionButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Comienza a modificar permanentemente todos los paquetes seleccionados usando el conjunto de parámetros actual de arriba.&#x0a;&#x0a;Asegúrate de que Minecraft esté cerrado mientras se ajustan los paquetes para evitar problemas; o, como mínimo, recarga tu mundo para que los cambios surtan efecto.</value>
+  </data>
+  <data name="ExportButtonText.Text" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="ExportButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Exporta los paquetes seleccionados como .mcpack para crear copias de seguridad o compartirlos fácilmente.</value>
+  </data>
+  <data name="DeleteButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Elimina físicamente los archivos de los paquetes seleccionados del directorio de datos del juego.&#x0a;&#x0a;ADVERTENCIA PARA USUARIOS AVANZADOS: Esta función sube hasta la carpeta principal del paquete de recursos seleccionado, para no dejar carpetas vacías huérfanas; si guardas otros archivos dentro de un paquete de recursos, o mantienes varios paquetes de recursos dentro de una misma carpeta por cualquier motivo, evita usar este botón.</value>
+  </data>
+
+  <data name="LaunchPackUpdateButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Consulta información de instalación, disponibilidad de actualizaciones y noticias de los paquetes de recursos de Vanilla RTX. Obtén actualizaciones más rápido, instala o simplemente reinstala cada paquete.</value>
+  </data>
+  <data name="UpdateVanillaRTXButtonText.Text" xml:space="preserve">
+    <value>Obtener paquetes RTX más recientes</value>
+  </data>
+  <data name="LaunchLUTManagerButtonText.Text" xml:space="preserve">
+    <value>Administrador de LUT de RTX</value>
+  </data>
+  <data name="LaunchLUTManagerButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Ofrece una alternativa más simple y confiable a BetterRTX que funciona en todas las versiones del juego modificando las tablas de búsqueda de color (LUT) predeterminadas de RTX.</value>
+  </data>
+  <data name="LaunchAlchitexButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>RTX Reactor puede generar soporte RTX para cualquier paquete de texturas normal de Minecraft Bedrock Edition.
+&#x0a;Lo hace generando conjuntos de texturas PBR para cada textura, añadiendo configuraciones específicas de RTX y ajustando las texturas donde haga falta para el trazado de rayos.
+&#x0a;&#x0a;Lo ideal es que los paquetes con la etiqueta "Candidato de RTX Reactor" sean los que más se beneficien de esta función.</value>
+  </data>
+  <data name="LaunchBetterRTXManagerButtonText.Text" xml:space="preserve">
+    <value>Administrador de BetterRTX</value>
+  </data>
+  <data name="LaunchBetterRTXManagerButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Administra e instala perfiles predefinidos de BetterRTX.</value>
+  </data>
+  <data name="LaunchMinecraftButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Inicia Minecraft o Minecraft Preview con el trazado de rayos ya activado para evitar problemas. Además, desactiva la sincronización vertical (VSync) para un mejor rendimiento y habilita el cambio de modo gráfico dentro del juego.&#x0a;&#x0a;PARA USUARIOS AVANZADOS: Mantener presionada la tecla Shift al pulsar este botón activa la VSync del juego en su lugar.</value>
+  </data>
+  <data name="LaunchButtonText.Text" xml:space="preserve">
+    <value>Iniciar Minecraft RTX</value>
+  </data>
+  <data name="LaunchDLSSSwapperButtonText.Text" xml:space="preserve">
+    <value>Intercambiador de DLSS</value>
+  </data>
+  <data name="LaunchDLSSSwapperButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Importa distintas versiones de DLSS que quieras y cámbialas rápidamente entre sí.</value>
+  </data>
+
+  <!-- ===================== Code-behind (C#) strings ===================== -->
+
+  <data name="Theme_Prefix" xml:space="preserve">
+    <value>Tema: {0}</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>Sistema</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Oscuro</value>
+  </data>
+
+  <data name="SuspendAnimations_ActiveTooltip" xml:space="preserve">
+    <value>Todas las animaciones únicas de la interfaz están actualmente suspendidas; haz clic de nuevo para activarlas.</value>
+  </data>
+  <data name="SuspendAnimations_InactiveTooltip" xml:space="preserve">
+    <value>Desactiva las animaciones únicas de la interfaz mientras esté activo.</value>
+  </data>
+
+  <data name="CrashReport_Title" xml:space="preserve">
+    <value>Informe de fallo de la sesión anterior</value>
+  </data>
+  <data name="CrashReport_CopyButton" xml:space="preserve">
+    <value>Copiar registros de fallo</value>
+  </data>
+  <data name="CrashReport_CopyButton_Copied" xml:space="preserve">
+    <value>¡Copiado!</value>
+  </data>
+  <data name="CrashReport_GithubLink" xml:space="preserve">
+    <value>Crear un issue en GitHub</value>
+  </data>
+  <data name="CrashReport_DiscordLink" xml:space="preserve">
+    <value>Crear una publicación en el servidor de Discord de Vanilla RTX</value>
+  </data>
+  <data name="CrashReport_DismissButton" xml:space="preserve">
+    <value>Continuar usando la app (descarta el informe)</value>
+  </data>
+  <data name="CrashReport_Body" xml:space="preserve">
+    <value>¡Vaya! Parece que ocurrió un fallo durante la sesión anterior. Puedes continuar usando la app, pero sería mejor que lo reportaras al desarrollador para verlo solucionado pronto.</value>
+  </data>
+  <data name="CrashReport_ReportMethods" xml:space="preserve">
+    <value>Repórtalo usando alguno de los siguientes métodos:</value>
+  </data>
+  <data name="CrashReport_DetailsLabel" xml:space="preserve">
+    <value>Detalles del fallo:</value>
+  </data>
+
+  <data name="Log_OpenUrlDisabledDebug" xml:space="preserve">
+    <value>OpenUrl está deshabilitado en compilaciones de depuración.</value>
+  </data>
+  <data name="Log_OpenUrlFailedDetails" xml:space="preserve">
+    <value>Detalles: {0}</value>
+  </data>
+  <data name="Log_OpenUrlFailed" xml:space="preserve">
+    <value>No se pudo abrir la URL. Asegúrate de tener un navegador instalado y asociado a enlaces web.</value>
+  </data>
+
+  <data name="PackVM_SelectOtherPacks" xml:space="preserve">
+    <value>Seleccionar otros paquetes</value>
+  </data>
+  <data name="PackVM_SelectedOnePack" xml:space="preserve">
+    <value>1 otro paquete seleccionado</value>
+  </data>
+  <data name="PackVM_SelectedPacks" xml:space="preserve">
+    <value>{0} otros paquetes seleccionados</value>
+  </data>
+  <data name="PackVM_LocateUserData" xml:space="preserve">
+    <value>Ubicar datos de usuario de {0}</value>
+  </data>
+  <data name="PackVM_Edition_Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="PackVM_Edition_Stable" xml:space="preserve">
+    <value>Estable</value>
+  </data>
+
+  <data name="Log_AppVersionDisclaimer" xml:space="preserve">
+    <value>Versión de la app: {0}
+
+No afiliado con Mojang ni NVIDIA;
+al continuar, aceptas modificaciones a tus instalaciones y datos de Minecraft.</value>
+  </data>
+  <data name="TitleBarText_VersionTooltip" xml:space="preserve">
+    <value>Versión: {0}</value>
+  </data>
+  <data name="Log_PleaseCloseMinecraft" xml:space="preserve">
+    <value>Cierra Minecraft mientras usas la app. Cuando termines, inicia el juego usando el botón {0}.</value>
+  </data>
+
+  <data name="Log_ChatInvitation" xml:space="preserve">
+    <value>¡Aquí tienes la invitación!
+Discord.gg/A4wv4wwYud</value>
+  </data>
+  <data name="Log_HelpDocumentation" xml:space="preserve">
+    <value>Encuentra recursos útiles en el archivo README, que se abrirá en tu navegador predeterminado en breve.</value>
+  </data>
+  <data name="Log_HelpHoverInfo" xml:space="preserve">
+    <value>Abre una página con la documentación completa de la app y una guía de uso.</value>
+  </data>
+
+  <data name="Log_TargetingPreview" xml:space="preserve">
+    <value>Aplicando cambios a Minecraft Preview.</value>
+  </data>
+  <data name="Log_TargetingStable" xml:space="preserve">
+    <value>Aplicando cambios a la versión estable de Minecraft.</value>
+  </data>
+
+  <data name="Dialog_WipeData_Title" xml:space="preserve">
+    <value>Estás a punto de borrar por completo todos los datos de la app.</value>
+  </data>
+  <data name="Dialog_WipeData_Body" xml:space="preserve">
+    <value>Esto eliminará todos los datos de la aplicación en tu dispositivo, incluyendo los archivos RTX y LUT predeterminados que la app obtuvo de tus archivos de juego reales.
+Por ello, es posible que se te soliciten múltiples permisos de administrador para que la app pueda restaurar los archivos predeterminados de tu juego antes de que desaparezcan de los datos de la app.</value>
+  </data>
+  <data name="Dialog_Confirm" xml:space="preserve">
+    <value>Confirmar</value>
+  </data>
+  <data name="Log_WipeDataCancelled" xml:space="preserve">
+    <value>El usuario canceló el borrado de los datos de la app (Shift + Restablecer).</value>
+  </data>
+  <data name="Log_HardResetError" xml:space="preserve">
+    <value>Error de restablecimiento completo: {0}</value>
+  </data>
+
+  <data name="Log_ResetExtraInfo" xml:space="preserve">
+    <value>Nota:
+¡Esto no restaura los paquetes a su estado predeterminado!
+Para restablecer los paquetes a su estado original, puedes reinstalar rápidamente las versiones más recientes de Vanilla RTX usando el botón '{0}'. Otros paquetes requerirán reinstalación manual. Usa Exportar para respaldarlos y volver a importarlos fácilmente cuando lo necesites.</value>
+  </data>
+  <data name="Log_TuningEnvironmentReset" xml:space="preserve">
+    <value>Entorno de ajuste restablecido.</value>
+  </data>
+
+  <data name="Log_ClearedAllPacks" xml:space="preserve">
+    <value>Se limpiaron todas las selecciones de paquetes.</value>
+  </data>
+  <data name="Log_DeselectedVanillaRTX" xml:space="preserve">
+    <value>Se deseleccionaron todos los paquetes de Vanilla RTX.</value>
+  </data>
+  <data name="Log_NothingToClear" xml:space="preserve">
+    <value>No has seleccionado ningún paquete de recursos para limpiar.</value>
+  </data>
+
+  <data name="Log_HardResetStart" xml:space="preserve">
+    <value>Iniciando restablecimiento completo; esto borrará todo el almacenamiento y los archivos temporales de la app...</value>
+  </data>
+  <data name="Log_DeletedKey" xml:space="preserve">
+    <value>Clave eliminada: {0}/{1}</value>
+  </data>
+  <data name="Log_DeletedContainer" xml:space="preserve">
+    <value>Contenedor eliminado: {0}/{1}</value>
+  </data>
+  <data name="Log_WipedSettingKeys" xml:space="preserve">
+    <value>Se borraron {0} clave(s) de configuración en todos los contenedores.</value>
+  </data>
+  <data name="Log_WipingFolder" xml:space="preserve">
+    <value>Borrando {0}: {1}</value>
+  </data>
+  <data name="Log_FolderNotFoundSkipping" xml:space="preserve">
+    <value>{0} no se encontró, omitiendo.</value>
+  </data>
+  <data name="Log_DeletedFile" xml:space="preserve">
+    <value>Archivo eliminado: {0}</value>
+  </data>
+  <data name="Log_CouldNotDeleteFile" xml:space="preserve">
+    <value>No se pudo eliminar el archivo {0}: {1}</value>
+  </data>
+  <data name="Log_DeletedFolder" xml:space="preserve">
+    <value>Carpeta eliminada: {0}</value>
+  </data>
+  <data name="Log_CouldNotDeleteFolder" xml:space="preserve">
+    <value>No se pudo eliminar la carpeta {0}: {1}</value>
+  </data>
+  <data name="Log_FolderWiped" xml:space="preserve">
+    <value>{0} borrada ({1} elemento(s)).</value>
+  </data>
+  <data name="Log_TotalItemsDeleted" xml:space="preserve">
+    <value>Se eliminaron {0} archivo(s)/carpeta(s) en total.</value>
+  </data>
+  <data name="Log_HardResetComplete" xml:space="preserve">
+    <value>¡Restablecimiento completo finalizado! La app se reiniciará en un momento...</value>
+  </data>
+  <data name="Log_HardResetGeneralError" xml:space="preserve">
+    <value>Error durante el restablecimiento completo: {0}</value>
+  </data>
+  <data name="Log_CheckingActivePresets" xml:space="preserve">
+    <value>Buscando perfiles personalizados activos que deban revertirse primero...</value>
+  </data>
+  <data name="Log_GuardReverted" xml:space="preserve">
+    <value>{0}: revertido a Predeterminado antes del borrado.</value>
+  </data>
+  <data name="Log_GuardRestoreFailed" xml:space="preserve">
+    <value>{0}: se intentó revertir a Predeterminado pero falló; es posible que el juego siga en un perfil modificado.</value>
+  </data>
+  <data name="Log_GuardSkipped" xml:space="preserve">
+    <value>{0}: no se pudo verificar el estado del perfil de forma segura; se dejó sin cambios.</value>
+  </data>
+  <data name="Log_GuardNoActionNeeded" xml:space="preserve">
+    <value>{0}: ya está en Predeterminado o no hay nada que proteger.</value>
+  </data>
+
+  <data name="Log_SelectPackToDelete" xml:space="preserve">
+    <value>Selecciona al menos un paquete para eliminar.</value>
+  </data>
+  <data name="Dialog_DeletePacks_Title" xml:space="preserve">
+    <value>¿Eliminar los paquetes seleccionados?</value>
+  </data>
+  <data name="Dialog_DeletePacks_Body_Singular" xml:space="preserve">
+    <value>¡Esto eliminará {0} paquete para siempre! (¡Mucho, mucho tiempo!)</value>
+  </data>
+  <data name="Dialog_DeletePacks_Body_Plural" xml:space="preserve">
+    <value>¡Esto eliminará {0} paquetes para siempre! (¡Mucho, mucho tiempo!)</value>
+  </data>
+  <data name="Dialog_Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Log_DeleteCancelled_Singular" xml:space="preserve">
+    <value>El usuario canceló la eliminación del paquete seleccionado.</value>
+  </data>
+  <data name="Log_DeleteCancelled_Plural" xml:space="preserve">
+    <value>El usuario canceló la eliminación de los paquetes seleccionados.</value>
+  </data>
+  <data name="Log_DuplicateInDeletionQueue" xml:space="preserve">
+    <value>{0} se encontró más de una vez en la cola de eliminación; se omitió la selección duplicada.</value>
+  </data>
+  <data name="Log_Deleted" xml:space="preserve">
+    <value>Se eliminó {0}.</value>
+  </data>
+  <data name="Log_CouldNotDelete" xml:space="preserve">
+    <value>No se pudo eliminar {0}.
+consulta la salida de trazas para más detalles manteniendo presionada la tecla Shift mientras haces clic en el ícono de la lámpara.</value>
+  </data>
+  <data name="Log_DeleteFailed" xml:space="preserve">
+    <value>Error al eliminar: {0}</value>
+  </data>
+  <data name="Log_NoPacksDeleted" xml:space="preserve">
+    <value>No se eliminó ningún paquete.</value>
+  </data>
+
+  <data name="RestoreOriginalButtonText.Text" xml:space="preserve">
+    <value>Restaurar original</value>
+  </data>
+  <data name="RestoreOriginal_ToolTip" xml:space="preserve">
+    <value>Restaura el/los paquete(s) seleccionado(s) a como estaban la primera vez que la app los tocó - deshace los cambios del Tuner, o reemplaza lo que haya dejado una actualización de paquete.&#x0a;&#x0a;Solo funciona con paquetes que la app respaldó automáticamente antes de modificarlos/eliminarlos; los paquetes que nunca se ajustaron, actualizaron o reimportaron con la app no tienen nada que restaurar.</value>
+  </data>
+  <data name="Log_NoBackupsToRestore" xml:space="preserve">
+    <value>Ninguno de los paquetes seleccionados tiene una copia de seguridad para restaurar - nunca se ajustaron, actualizaron ni reimportaron con esta app.</value>
+  </data>
+  <data name="Dialog_RestoreOriginal_Title" xml:space="preserve">
+    <value>¿Restaurar los archivos originales del paquete?</value>
+  </data>
+  <data name="Dialog_RestoreOriginal_Body" xml:space="preserve">
+    <value>Esto reemplazará los archivos actuales de los siguientes paquetes con la copia de seguridad tomada la primera vez que la app los tocó, deshaciendo cualquier ajuste o actualización hecha desde entonces: {0}</value>
+  </data>
+  <data name="Dialog_RestoreOriginal_Confirm" xml:space="preserve">
+    <value>Restaurar</value>
+  </data>
+  <data name="Log_RestoreCancelled" xml:space="preserve">
+    <value>El usuario canceló la restauración de los archivos originales.</value>
+  </data>
+  <data name="Log_RestoredOriginal" xml:space="preserve">
+    <value>Se restauró {0} a sus archivos originales.</value>
+  </data>
+  <data name="Log_RestoreOriginalFailed" xml:space="preserve">
+    <value>No se pudo restaurar {0} - consulta la salida de trazas para más detalles manteniendo presionada la tecla Shift mientras haces clic en el ícono de la lámpara.</value>
+  </data>
+  <data name="Log_RestoreOriginalError" xml:space="preserve">
+    <value>Algo salió mal al restaurar los archivos originales del paquete: {0}</value>
+  </data>
+  <data name="Log_NothingRestored" xml:space="preserve">
+    <value>No se restauró nada.</value>
+  </data>
+
+  <data name="Log_DuplicateExportSelection" xml:space="preserve">
+    <value>{0} se seleccionó dos veces, pero solo se exportará una vez.</value>
+  </data>
+  <data name="Log_ExportFinished" xml:space="preserve">
+    <value>Se terminó de exportar {0} a {1}</value>
+  </data>
+  <data name="Log_SelectPackToExport" xml:space="preserve">
+    <value>Selecciona al menos un paquete para exportar.</value>
+  </data>
+  <data name="Log_AllExportsFailed" xml:space="preserve">
+    <value>Todas las exportaciones fallaron.</value>
+  </data>
+
+  <data name="TuneButton_Stopping" xml:space="preserve">
+    <value>Deteniendo...</value>
+  </data>
+  <data name="TuneButton_Abort" xml:space="preserve">
+    <value>Cancelar operación de ajuste</value>
+  </data>
+  <data name="TuneButton_Default" xml:space="preserve">
+    <value>Ajustar selección</value>
+  </data>
+  <data name="Log_SomeIncompatiblePacks" xml:space="preserve">
+    <value>Algunos de los paquetes seleccionados no son compatibles con RTX y se excluirán del proceso de ajuste.</value>
+  </data>
+  <data name="Log_NoneCompatibleHasIncompatible" xml:space="preserve">
+    <value>Ninguno de los paquetes seleccionados es compatible con RTX o Vibrant Visuals. Selecciona al menos un paquete compatible para ajustar.</value>
+  </data>
+  <data name="Log_SelectCompatiblePack" xml:space="preserve">
+    <value>Selecciona al menos un paquete compatible para ajustar.</value>
+  </data>
+  <data name="TuneButton_AbortTooltip" xml:space="preserve">
+    <value>Detiene la operación de ajuste. Las texturas ya terminadas conservan sus cambios; lo que el ajustador aún no haya alcanzado queda sin modificar.</value>
+  </data>
+  <data name="Log_TuningCancelled" xml:space="preserve">
+    <value>Se canceló el ajuste.</value>
+  </data>
+  <data name="Log_TuningError" xml:space="preserve">
+    <value>Algo salió mal durante el proceso de ajuste: {0}</value>
+  </data>
+
+  <data name="Log_MinecraftAlreadyOpen" xml:space="preserve">
+    <value>Parece que Minecraft ya está abierto. Reinicia el juego para que los cambios en options.txt surtan efecto.</value>
+  </data>
+
+  <data name="Log_AlchitexExplainer" xml:space="preserve">
+    <value>RTX Reactor genera soporte RTX para paquetes de texturas; funciona mejor con paquetes que no traen texturas PBR propias.</value>
+  </data>
+  <data name="Log_AlchitexSelectCandidate" xml:space="preserve">
+    <value>Debes seleccionar al menos un '{0}' de tus paquetes de recursos para usar esta función.</value>
+  </data>
+  <data name="Log_AlchitexOpenAnywayDebug" xml:space="preserve">
+    <value>Ningún paquete seleccionado - abriendo RTX Reactor de todos modos (compilación Debug).</value>
+  </data>
+  <data name="Log_AlchitexMustSelectPack" xml:space="preserve">
+    <value>Debes seleccionar al menos un paquete de recursos para usar esta función.</value>
+  </data>
+  <data name="Log_AlchitexNoneTagged" xml:space="preserve">
+    <value>Ninguno de los paquetes seleccionados tiene la etiqueta '{0}' - RTX Reactor te pedirá confirmar cada uno antes de generar.</value>
+  </data>
+
+  <data name="Log_ManualDataInvalidFolder" xml:space="preserve">
+    <value>Esa no parece ser una carpeta de datos de {0} válida. Selecciona la carpeta llamada "{1}"; debe ser la que contiene una subcarpeta "Users".</value>
+  </data>
+  <data name="Log_ManualDataFolderSet" xml:space="preserve">
+    <value>Carpeta de datos de {0} establecida: {1}
+
+💾 La app recordará esta ubicación; ahora puedes seguir usando las funciones que dependían de los datos de usuario.
+Pero si seleccionaste una ubicación incorrecta, es posible que algunas funciones no funcionen correctamente. Para seleccionar otra ruta, deberás borrar los datos de la app manteniendo presionada la tecla Shift, lo que cambia el botón Restablecer a Borrar; haz clic en él e inténtalo de nuevo.</value>
+  </data>
+
+  <data name="Tooltip_LocateUserData" xml:space="preserve">
+    <value>La app no pudo encontrar automáticamente la carpeta de datos de {0}; haz clic para ubicarla manualmente.</value>
+  </data>
+  <data name="Log_CouldNotFindUserDataFolder" xml:space="preserve">
+    <value>No se pudo encontrar automáticamente la carpeta de datos de usuario de {0}. Esto es lo que debes hacer:
+Haz clic en el botón "Ubicar datos de usuario de {1}" de arriba, busca y selecciona la carpeta llamada "{2}"; es la que tiene una subcarpeta "Users" dentro.
+Si no tienes {0} instalado, puedes ignorar esta advertencia. Asegúrate también de haber jugado al menos una vez si lo instalaste o reinstalaste recientemente.
+Si seleccionas una ubicación incorrecta, deberás borrar los datos de la app para poder seleccionar cualquier otra ubicación. Para hacerlo, mantén presionada la tecla Shift en la ventana principal de la app y pulsa el botón Borrar.</value>
+  </data>
+
+</root>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="Window.Title" xml:space="preserve"><value>RTX LUT Manager</value></data>
+  <data name="ManualSelectionIntroText.Text" xml:space="preserve"><value>The app couldn't auto-locate your game files using the usual fast methods!&#x0a;A system-wide scan is in progress, there is a high chance it will find your game given enough time.</value></data>
+  <data name="ManualSelectionText.Text" xml:space="preserve"><value>But if it is taking too long? Click to manually navigate to the folder where the game is installed to, it should have a file called Minecraft.Windows.exe inside of it.&#x0a;&#x0a;The app is tolerant towards slightly imprecise location selections, it will still try to have a look around no matter where you select, but if you're still having trouble finding out where your game is installed to, join the Vanilla RTX Discord server and ask for help, or try to find out online.</value></data>
+
+  <data name="WindowTitle_Format" xml:space="preserve"><value>RTX LUT manager - {0}</value></data>
+  <data name="Target_MinecraftPreview" xml:space="preserve"><value>Minecraft Preview</value></data>
+  <data name="Target_MinecraftRelease" xml:space="preserve"><value>Minecraft Release</value></data>
+
+  <data name="SelectPresetMenu_Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="SelectPresetMenu_ToolTip" xml:space="preserve"><value>Select a LUT preset</value></data>
+  <data name="SelectPresetMenu_NoSelection" xml:space="preserve"><value>Select a preset...</value></data>
+  <data name="SelectPresetMenu_InstalledPreset" xml:space="preserve"><value>Installed Preset: {0}</value></data>
+  <data name="SelectPresetMenu_SelectedPreset" xml:space="preserve"><value>Selected Preset: {0}</value></data>
+
+  <data name="InstallButton_ToolTip" xml:space="preserve"><value>Install the selected preset.</value></data>
+  <data name="InstallButton_Install" xml:space="preserve"><value>Install</value></data>
+  <data name="InstallButton_Reinstall" xml:space="preserve"><value>Reinstall</value></data>
+
+  <data name="PresetMenuItem_Incomplete" xml:space="preserve"><value>{0} (incomplete)</value></data>
+
+  <data name="Status_InitializationError" xml:space="preserve"><value>Initialization error: {0}</value></data>
+  <data name="Status_CouldNotEstablishDefaultsFolder" xml:space="preserve"><value>Could not establish defaults folder</value></data>
+  <data name="Status_NoValidInstallationSelected" xml:space="preserve"><value>No valid Minecraft installation selected</value></data>
+  <data name="Status_InstalledLutPreset" xml:space="preserve"><value>Installed LUT preset: {0}</value></data>
+</root>
