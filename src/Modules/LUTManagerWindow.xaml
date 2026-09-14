@@ -1,0 +1,222 @@
+<Window x:Class="Vanilla_RTX_App.Modules.LUTManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:Vanilla_RTX_App.Modules"
+        xmlns:core="using:Vanilla_RTX_App.Core"
+        x:Uid="Window"
+        Title="RTX LUT Manager">
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop />
+    </Window.SystemBackdrop>
+    <Grid>
+        <Border x:Name="LightThemeOverlay"
+                Grid.ColumnSpan="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                IsHitTestVisible="False"
+                Visibility="{ThemeResource LightThemeBackgroundVisibility}"
+                Canvas.ZIndex="-1">
+            <Border.Background>
+                <SolidColorBrush Color="#17373737" />
+            </Border.Background>
+        </Border>
+
+        <!-- Loading Screen -->
+        <Grid x:Name="LoadingPanel"
+              Visibility="Visible"
+              Background="Transparent">
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="20">
+                <ProgressRing IsActive="True"
+                              Width="100"
+                              Height="100"/>
+
+                <Button x:Name="ManualSelectionButton"
+                        Visibility="Collapsed"
+                        HorizontalAlignment="Center"
+                        Padding="20,12,20,12"
+                        Style="{ThemeResource AccentButtonStyle}"
+                        Click="ManualSelectionButton_Click">
+                    <StackPanel Spacing="10">
+                        <TextBlock x:Name="ManualSelectionIntroText"
+                                   x:Uid="ManualSelectionIntroText"
+                                   FontSize="15"
+                                   TextAlignment="Center"
+                                   FontWeight="Medium"
+                                   HorizontalAlignment="Center"
+                                   IsTextScaleFactorEnabled="False" />
+                        <TextBlock x:Name="ManualSelectionText"
+                                   x:Uid="ManualSelectionText"
+                                   FontSize="13"
+                                   Opacity="0.8"
+                                   FontWeight="Medium"
+                                   TextAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="400"
+                                   IsTextScaleFactorEnabled="False" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main UI -->
+        <Grid x:Name="MainPanel"
+              Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar -->
+            <Grid Grid.Row="0"
+                  x:Name="TitleBarArea"
+                  Background="Transparent">
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                    <TextBlock x:Name="WindowTitle"
+                               Margin="0,2,0,0"
+                               VerticalAlignment="Center"
+                               IsTextScaleFactorEnabled="False"
+                               IsHitTestVisible="False" />
+                </Grid>
+            </Grid>
+
+            <!-- Content -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <!-- Row 0: Button pair -->
+                    <RowDefinition Height="Auto" />
+                    <!-- Row 1: Description text -->
+                    <RowDefinition Height="Auto" />
+                    <!-- Row 2: Preset preview image -->
+                    <RowDefinition Height="*" />
+                    <!-- Row 3: More desc pains -->
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- ═══════════════════════════════════════════════
+                     ROW 0 — Preset dropdown + Install button pair
+                     ═══════════════════════════════════════════════ -->
+
+                <Grid x:Name="ButtonRowGrid"
+                      Grid.Row="0"
+                      Height="50"
+                      Margin="20,14,20,6"
+                      VerticalAlignment="Top"
+                      HorizontalAlignment="Stretch"
+                      Translation="0,0,32">
+                    <Grid.Shadow>
+                        <ThemeShadow />
+                    </Grid.Shadow>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2.15*" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <DropDownButton x:Name="SelectPresetMenu"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    FontWeight="SemiBold"
+                                    CornerRadius="4,0,0,4"
+                                    BorderThickness="0"
+                                    IsTextScaleFactorEnabled="False">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom" />
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+
+                    <Button x:Name="InstallButton"
+                            Grid.Column="2"
+                            Click="InstallButton_Click"
+                            FontWeight="SemiBold"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            CornerRadius="0,6,6,0"
+                            BorderThickness="0"
+                            IsEnabled="False"
+                            IsTextScaleFactorEnabled="False" />
+
+                    <!-- Visual split — dark border on right edge of left button -->
+                    <Grid Grid.Column="0"
+                          HorizontalAlignment="Right"
+                          Width="3"
+                          Margin="0,0,-3,0"
+                          IsHitTestVisible="False">
+                        <Rectangle Fill="{ThemeResource ButtonBackgroundThemeBrush}" />
+                        <Border BorderBrush="{ThemeResource FakeSplitButtonDarkBorderColor}"
+                                BorderThickness="3,0,0,0" />
+                    </Grid>
+
+                    <!-- Visual split — bright border on left edge of right button -->
+                    <Grid Grid.Column="2"
+                          HorizontalAlignment="Left"
+                          Width="3"
+                          Margin="-3,0,0,0"
+                          IsHitTestVisible="False">
+                        <Rectangle Fill="{ThemeResource ButtonBackgroundThemeBrush}" />
+                        <Border BorderBrush="{ThemeResource FakeSplitButtonBrightBorderColor}"
+                                BorderThickness="3,0,0,0"
+                                x:Name="LeftEdgeOfInstallButton"/>
+                    </Grid>
+                </Grid>
+
+                <!-- ═══════════════════════════════════════════════
+                 ROW 1 — Online announcements
+                   ═══════════════════════════════════════════════ -->
+                <StackPanel x:Name="LutAnnouncementsPanel"
+                            Grid.Row="1"
+                            Spacing="12"
+                            Margin="20,12,20,8" />
+
+                <!-- ═══════════════════════════════════════════════
+                     ROW 2 — Preset preview image (crossfade vessels)
+                     Bottom vessel: current/settled image
+                     Top vessel:    incoming image, fades in over bottom
+                     ═══════════════════════════════════════════════ -->
+                <Grid Grid.Row="2"
+                      Padding="0,12,0,0">
+
+                    <Rectangle Fill="{StaticResource FakeSplitButtonBrightBorderColor}"
+                               Height="6"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Top"
+                               Canvas.ZIndex="996"
+                               Opacity="1.0">
+                        
+                    </Rectangle>
+                    <Rectangle Fill="{StaticResource FakeSplitButtonBrightBorderColor}"
+                               Height="3"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Top"
+                               Canvas.ZIndex="997"
+                               Opacity="1.0">
+                    </Rectangle>
+
+                    <!-- Bottom vessel — holds the settled (current) image -->
+                    <Image x:Name="PresetImageBottom"
+                           Stretch="UniformToFill"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Opacity="1" />
+
+                    <!-- Top vessel — fades in the incoming image over the bottom -->
+                    <Image x:Name="PresetImageTop"
+                           Stretch="UniformToFill"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Opacity="0">
+                        <Image.Transitions>
+                            <TransitionCollection />
+                        </Image.Transitions>
+                    </Image>
+                </Grid>
+
+                
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

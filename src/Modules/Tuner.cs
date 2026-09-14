@@ -1,0 +1,1564 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using static Vanilla_RTX_App.EnvironmentVariables;
+using static Vanilla_RTX_App.EnvironmentVariables.Persistent;
+using static Vanilla_RTX_App.Modules.ProcessorVariables;
+
+namespace Vanilla_RTX_App.Modules;
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  Hardcoded Processor Variables
+// ══════════════════════════════════════════════════════════════════════════════
+
+internal static class ProcessorVariables
+{
+
+    /// <summary>
+    /// If set to true, replaces height values, if any, with uniform fog, this was planned to be exposed to user
+    /// But the app later pivoted towards "making everything dumb simple" and this option wouldn't have been "simple" enough.
+    /// </summary>
+    public const bool FOG_UNIFORM_HEIGHT = false;
+
+    /// <summary>
+    /// Excess of the multiplier is applied to other pixels, but heavily dampenend using this number
+    /// </summary>
+    public const double EMISSIVE_EXCESS_INTENSITY_DAMPEN = 0.1;
+
+    /// <summary>
+    /// Deepest a lazified POM pixel may sit below the surface. Luminance is a guess at height,
+    /// so the pass gets a shallow slice of the range to be wrong in rather than the whole of it;
+    /// the pack's own POM, blended in alongside, is the part that is allowed to be deep.
+    /// </summary>
+    public const int LAZIFY_POM_FLOOR = 178;
+
+    /// <summary>
+    /// Ambient light tracks the emissivity multiplier 1:1 up to the knee, then saturates along
+    /// a hyperbolic tail instead of continuing to climb -- a 16x multiplier paired with the
+    /// toggle used to dump 17 uniform green over every pixel. Tail approaches
+    /// 1 + KNEE + SOFTNESS (12) but never reaches it; at the slider's 16x ceiling it reads 10.
+    /// </summary>
+    public const double AMBIENT_LINEAR_KNEE = 4.5;
+    public const double AMBIENT_TAIL_SOFTNESS = 5.0;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  PackContextFile  ──  per-pack tuning state written to __vanillartxtuner_context
+// ══════════════════════════════════════════════════════════════════════════════
+
+public static class PackContextFile
+{
+    private const string FileName = "__vanillartxapp_tuner_context";
+    private const string AmbientKey = "PreviouslyTunedWithAmbientLightingToggle";
+
+    public sealed class PackContext
+    {
+        public bool HadAmbientLighting { get; set; }
+    }
+
+    public static PackContext Read(string packRoot)
+    {
+        var ctx = new PackContext();
+        var path = Path.Combine(packRoot, FileName);
+
+        if (!File.Exists(path))
+            return ctx;
+
+        try
+        {
+            var keys = File.ReadAllLines(path)
+                          .Select(l => l.Trim())
+                          .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            ctx.HadAmbientLighting = keys.Contains(AmbientKey);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"[TUNER] PackContextFile.Read failed for '{packRoot}': {ex.Message}");
+        }
+
+        return ctx;
+    }
+
+    public static void Write(string packRoot, PackContext ctx)
+    {
+        var path = Path.Combine(packRoot, FileName);
+
+        if (!ctx.HadAmbientLighting && !File.Exists(path))
+            return;
+
+        try
+        {
+            var lines = new List<string>();
+            if (ctx.HadAmbientLighting) lines.Add(AmbientKey);
+
+            File.WriteAllLines(path, lines);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"[TUNER] PackContextFile.Write failed for '{packRoot}': {ex.Message}");
+        }
+    }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  Processor  ──  orchestrator + all sub-processors
+// ══════════════════════════════════════════════════════════════════════════════
+
+public class Tuner
+{
+    /// <summary>Reported via IProgress&lt;T&gt; while a tuning run is in progress.
+    /// Total == 0 means "work amount unknown yet" (caller should show an
+    /// indeterminate bar); once Total is known, Completed/Total gives a real ratio.</summary>
+    public readonly record struct TuningProgress(int Completed, int Total, string StatusText);
+
+    private struct PackInfo
+    {
+        public string Name;
+        public string Path;
+        public bool Enabled;
+
+        public PackInfo(string name, string path, bool enabled)
+        {
+            Name = name;
+            Path = path;
+            Enabled = enabled;
+        }
+    }
+
+    /// <param name="progress">Optional progress sink. Safe to pass a UI-thread-created
+    /// System.Progress&lt;TuningProgress&gt; - callbacks are marshalled back to whatever
+    /// SynchronizationContext was current when it was constructed.</param>
+    /// <param name="cancellationToken">Checked between packs and once per texture set.
+    /// When cancelled, work already completed for the pack currently in flight is
+    /// still saved to disk before the method returns - nothing already-finished is lost.</param>
+    public static string TuneSelectedPacks(IProgress<TuningProgress>? progress = null, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        static string NormalizePath(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return string.Empty;
+            return System.IO.Path.GetFullPath(path)
+                .TrimEnd(System.IO.Path.DirectorySeparatorChar,
+                         System.IO.Path.AltDirectorySeparatorChar);
+        }
+
+        var packList = new List<PackInfo>
+        {
+            new("Vanilla RTX",         VanillaRTXLocation,        IsVanillaRTXEnabled),
+            new("Vanilla RTX Normals", VanillaRTXNormalsLocation, IsNormalsEnabled),
+            new("Vanilla RTX Opus",    VanillaRTXOpusLocation,    IsOpusEnabled),
+        };
+
+        foreach (var (location, name, type, _) in EnvironmentVariables.SelectedPacks)
+        {
+            if (type == "Incompatible") continue;
+            packList.Add(new PackInfo(name, location, !string.IsNullOrEmpty(location)));
+        }
+
+        var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var dedupedList = new List<PackInfo>();
+
+        foreach (var pack in packList)
+        {
+            if (!pack.Enabled) continue;
+
+            var normalised = NormalizePath(pack.Path);
+            if (string.IsNullOrEmpty(normalised)) continue;
+
+            if (seenPaths.Contains(normalised))
+            {
+                MainWindow.Log(
+                    $"{pack.Name} was selected twice, but will only be processed once!",
+                    MainWindow.LogLevel.Warning);
+            }
+            else
+            {
+                seenPaths.Add(normalised);
+                dedupedList.Add(pack);
+            }
+        }
+
+        var packs = dedupedList.ToArray();
+
+        var packNames = string.Join(", ", packs.Select(p => p.Name));
+        MainWindow.Log($"Tuning: {packNames}...", MainWindow.LogLevel.Lengthy);
+
+        bool doFog = FogMultiplier != Defaults.FogMultiplier;
+        bool doEmissivity = EmissivityMultiplier != Defaults.EmissivityMultiplier
+                         || AddEmissivityAmbientLight != Defaults.AddEmissivityAmbientLight;
+        bool doLazify = LazifyNormalAlpha != Defaults.LazifyNormalAlpha;
+        bool doNormalInt = NormalIntensity != Defaults.NormalIntensity;
+        bool doRoughness = RoughnessControlValue != Defaults.RoughnessControlValue;
+        bool doGrain = MaterialNoiseOffset != Defaults.MaterialNoiseOffset;
+        bool needsTextureProcessing = doEmissivity || doLazify || doNormalInt || doRoughness || doGrain;
+
+        // Pre-resolve texture sets for every pack up front. This costs one extra JSON
+        // parse pass (cheap - it's just text, no bitmaps loaded yet) but means we know
+        // the total unit count for progress reporting *before* the slow bitmap work
+        // starts, and the main loop below re-uses these results instead of re-parsing.
+        var resolvedByPackPath = new Dictionary<string, IReadOnlyList<TextureSetHelper.ResolvedTextureSet>>(StringComparer.OrdinalIgnoreCase);
+        var totalTextureSets = 0;
+
+        if (needsTextureProcessing)
+        {
+            foreach (var pack in packs)
+            {
+                if (string.IsNullOrEmpty(pack.Path) || !Directory.Exists(pack.Path)) continue;
+                var resolved = TextureSetHelper.ResolveTextureSets(pack.Path);
+                resolvedByPackPath[pack.Path] = resolved;
+                totalTextureSets += resolved.Count;
+            }
+        }
+
+        var processedTextureSets = 0;
+        var wasCancelled = false;
+        progress?.Report(new TuningProgress(0, totalTextureSets, "Starting tuning..."));
+
+        try
+        {
+            foreach (var pack in packs)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // First-touch backup of the whole pack folder before mutating anything in
+                // it - Tuner overwrites textures/JSON in place with no other way to undo
+                // it. Safe/cheap to call every time: no-ops instantly once a pack already
+                // has a backup. Running synchronously here is fine - TuneSelectedPacks
+                // itself always runs inside a background Task.Run (see its call site),
+                // never on the UI thread, so this doesn't risk blocking the UI.
+                if (!string.IsNullOrEmpty(pack.Path))
+                {
+                    var backedUp = PackBackupService.EnsureBackedUpAsync(pack.Path).GetAwaiter().GetResult();
+                    if (!backedUp)
+                        MainWindow.Log($"Could not create a backup of '{pack.Name}' before tuning it - continuing anyway, but its original files won't be recoverable through the app if something goes wrong.", MainWindow.LogLevel.Warning);
+                }
+
+                if (doFog)
+                {
+                    ProcessFog(pack, cancellationToken);
+                    ProcessFog(pack, cancellationToken, processWaterOnly: true);
+                }
+
+                if (!needsTextureProcessing)
+                    continue;
+
+                // Narrows pack.Path to non-null for the rest of this scope (the compiler
+                // can't see through the resolvedByPackPath dictionary lookup below to know
+                // it only ever contains entries keyed by a non-null, non-empty path - this
+                // check makes that guarantee visible locally instead of relying on it, and
+                // is what clears the CS8604 warning on the Read/Write calls further down).
+                if (string.IsNullOrEmpty(pack.Path))
+                {
+                    Trace.WriteLine($"[TUNER] Skipping texture processing for '{pack.Name}': path missing.");
+                    continue;
+                }
+
+                if (!resolvedByPackPath.TryGetValue(pack.Path, out var resolved))
+                {
+                    Trace.WriteLine($"[TUNER] Skipping texture processing for '{pack.Name}': path missing or inaccessible.");
+                    continue;
+                }
+
+                // Read pack context to determine guardrails for this pack
+                var packCtx = PackContextFile.Read(pack.Path);
+
+                // If this pack was previously tuned with ambient lighting, suppress the
+                // multiplier pass to prevent blinding over-brightness. The ambient pass
+                // itself (second pass) is still allowed to run.
+                bool skipEmissivityMultiplierPass = packCtx.HadAmbientLighting;
+
+                if (skipEmissivityMultiplierPass && doEmissivity && EmissivityMultiplier != Defaults.EmissivityMultiplier)
+                    Trace.WriteLine($"[TUNER] '{pack.Name}': emissivity multiplier suppressed - pack was previously tuned with ambient lighting.");
+
+                if (resolved.Count == 0)
+                {
+                    Trace.WriteLine($"[TUNER] '{pack.Name}': no valid texture sets found.");
+                    continue;
+                }
+
+                // Record the ambient-lighting flag *before* processing rather than after.
+                // If the run gets cancelled partway through this pack, some textures may
+                // already have ambient light baked in and saved to disk; recording the
+                // flag up front means a future run will still correctly suppress the
+                // multiplier pass for this pack instead of risking over-brightness.
+                if (AddEmissivityAmbientLight && !packCtx.HadAmbientLighting)
+                {
+                    packCtx.HadAmbientLighting = true;
+                    PackContextFile.Write(pack.Path, packCtx);
+                }
+
+                // Thread-safe: multiple texture sets (e.g. "torch_on"/"torch_off" variants
+                // that share a base filename) can race to populate the same cache key.
+                // GetOrAdd guarantees every caller ends up with the *same* winning noise
+                // pattern even if two threads both compute a value for a fresh key.
+                var grainCache = new ConcurrentDictionary<string, (int[,] red, int[,] green, int[,] blue, int[,] checker)>(
+                    StringComparer.OrdinalIgnoreCase);
+
+                // Some packs point more than one .texture_set.json at the *same physical*
+                // MER/normal file (e.g. two blocks sharing one texture). Without a guard,
+                // parallel processing could load, mutate, and save that one file from two
+                // texture sets at once - at best wasted duplicate work, at worst a torn
+                // write or a double-application of a transform. TryAdd on a
+                // ConcurrentDictionary is an atomic claim: whichever texture set gets there
+                // first "owns" that file for this run and is the only one allowed to mutate
+                // and save it; every other texture set referencing the same path is barred.
+                // This only matters for real files - inline/virtual values live inside their
+                // own .texture_set.json and can never collide with another texture set's.
+                // Color is intentionally not covered here: no processor currently marks it
+                // dirty (it's read-only input, e.g. for Lazify's luminance guide), so there's
+                // nothing to race on. If a future processor ever starts mutating Color, apply
+                // the same TryClaimFile gate to it too.
+                var claimedFiles = new ConcurrentDictionary<string, byte>(StringComparer.OrdinalIgnoreCase);
+
+                bool TryClaimFile(string? filePath)
+                {
+                    if (filePath == null) return true; // inline/virtual - not shared, always eligible
+                    return claimedFiles.TryAdd(Path.GetFullPath(filePath), 0);
+                }
+
+                var parallelOptions = new ParallelOptions
+                {
+                    CancellationToken = cancellationToken,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
+
+                // Each texture set is pipelined end-to-end (load from disk → apply the
+                // enabled ops → save dirty layers → dispose) as a single unit, in parallel
+                // across texture sets. This matters for two reasons beyond raw throughput:
+                //  - Progress becomes accurate. Decoding images from disk is frequently the
+                //    actual bottleneck (more so now that LockBits made the pixel math fast),
+                //    so folding load+save into the reported unit means the bar moves with
+                //    where the time is really going, instead of sitting at 0 through the
+                //    whole load phase and then jumping to 100 once the fast math phase runs.
+                //  - Cancellation becomes responsive. Previously ALL images in a pack were
+                //    loaded synchronously (uncancellable) before any parallel work began, so
+                //    hitting "Scram" during that phase did nothing until it finished on its
+                //    own. Now the token is checked once per texture set, so worst case you
+                //    wait for one image's load+process+save instead of the whole pack's.
+                Parallel.ForEach(resolved, parallelOptions, rs =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    TextureSetHelper.LoadedTextureSet? lts = null;
+                    try
+                    {
+                        lts = TextureSetHelper.LoadTextureSet(rs);
+                        if (lts == null) return;
+
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        // MER: Emissivity, Roughness, and Grain all mutate the same bitmap/file.
+                        // Claim once, up front, and only proceed with any of the three if this
+                        // texture set is the one that won the claim (or the layer is virtual,
+                        // which never needs claiming).
+                        if (lts.MerBmp != null && (doEmissivity || doRoughness || doGrain))
+                        {
+                            var merFilePath = lts.MerIsVirtual ? null : lts.Resolved.Mer?.FilePath;
+
+                            if (TryClaimFile(merFilePath))
+                            {
+                                if (doEmissivity)
+                                {
+                                    try
+                                    {
+                                        lts.MerDirty |= ApplyEmissivity(lts.MerBmp, skipEmissivityMultiplierPass);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Trace.WriteLine($"[TUNER] Emissivity failed for '{lts.Resolved.JsonFilePath}': {ex.Message}");
+                                    }
+                                }
+
+                                if (doRoughness)
+                                {
+                                    try
+                                    {
+                                        lts.MerDirty |= ApplyRoughness(lts.MerBmp);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Trace.WriteLine($"[TUNER] Roughness failed for '{lts.Resolved.JsonFilePath}': {ex.Message}");
+                                    }
+                                }
+
+                                if (doGrain && !lts.MerIsVirtual)
+                                {
+                                    try
+                                    {
+                                        lts.MerDirty |= ApplyMaterialGrain(lts.MerBmp, lts.Resolved.Mer?.FilePath, grainCache);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Trace.WriteLine($"[TUNER] MaterialGrain failed for '{lts.Resolved.JsonFilePath}': {ex.Message}");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Trace.WriteLine($"[TUNER] '{lts.Resolved.JsonFilePath}': MER file '{merFilePath}' already claimed by another texture set referencing the same file this run - skipping to avoid double-processing.");
+                            }
+                        }
+
+                        // Normal/heightmap: NormalIntensity and Lazify both mutate the same
+                        // bitmap/file. Same claim-once-up-front gate as MER above.
+                        // Captured into locals (rather than re-reading lts.NormalBmp/lts.ColorBmp
+                        // further down) so the null-narrowing from these checks reliably survives
+                        // the ApplyNormalIntensity call in between - a property read can lose
+                        // Roslyn's tracked non-null state across an intervening method call in a
+                        // way a local variable won't.
+                        var normalBmp = lts.NormalBmp;
+                        var colorBmp = lts.ColorBmp;
+                        var wantsLazify = doLazify && colorBmp != null && !lts.ColorIsVirtual && !lts.NormalIsVirtual;
+
+                        if (normalBmp != null && (doNormalInt || wantsLazify))
+                        {
+                            var normalFilePath = lts.NormalIsVirtual ? null : lts.Resolved.NormalOrHeight?.FilePath;
+
+                            if (TryClaimFile(normalFilePath))
+                            {
+                                if (doNormalInt)
+                                {
+                                    try
+                                    {
+                                        lts.NormalDirty |= ApplyNormalIntensity(normalBmp, lts.Resolved.IsHeightmap);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Trace.WriteLine($"[TUNER] NormalIntensity failed for '{lts.Resolved.JsonFilePath}': {ex.Message}");
+                                    }
+                                }
+
+                                if (wantsLazify)
+                                {
+                                    try
+                                    {
+                                        lts.NormalDirty |= ApplyLazify(colorBmp!, normalBmp, lts.Resolved.IsHeightmap);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Trace.WriteLine($"[TUNER] Lazify failed for '{lts.Resolved.JsonFilePath}': {ex.Message}");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Trace.WriteLine($"[TUNER] '{lts.Resolved.JsonFilePath}': normal/heightmap file '{normalFilePath}' already claimed by another texture set referencing the same file this run - skipping to avoid double-processing.");
+                            }
+                        }
+
+                        if (lts.ColorDirty || lts.MerDirty || lts.NormalDirty)
+                            TextureSetHelper.SaveDirtyLayers(lts);
+                    }
+                    finally
+                    {
+                        // Runs even if cancellation was thrown mid-unit, so a texture that
+                        // was only partway through is never left as a leaked bitmap handle
+                        // (it's simply not saved - at most one in-flight texture's work is
+                        // discarded on cancel, everything already completed stays on disk).
+                        lts?.ColorBmp?.Dispose();
+                        lts?.MerBmp?.Dispose();
+                        lts?.NormalBmp?.Dispose();
+
+                        var done = Interlocked.Increment(ref processedTextureSets);
+                        progress?.Report(new TuningProgress(done, totalTextureSets, pack.Name));
+                    }
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            wasCancelled = true;
+        }
+
+        // NOTE: an earlier version of this method called GC.Collect(blocking: true,
+        // compacting: true, GCCollectionMode.Aggressive) here to reclaim the RAM
+        // this file's class-level doc comment above used to describe. Removed: a
+        // blocking, compacting Gen2 collection stops *every* thread in the process,
+        // not just this one - including the UI thread and any other window's message
+        // pump. If another window was mid-initialization (e.g. an `await Task.Delay(...)`
+        // continuation queued on the UI dispatcher) when this fired, that continuation
+        // would sit frozen for however long the collection took, then resume against
+        // UI state that may no longer be valid - which is what caused the
+        // "WinUI Desktop Window object has already been closed" crash. The elevated
+        // idle RAM this was trying to fix is cosmetic (see the comment on
+        // TuneSelectedPacks' summary above) and not worth risking that.  If reclaiming
+        // it is still wanted, do it non-blocking and only when the app is truly idle
+        // (e.g. from the main window, once no tuning is running and no other windows
+        // are open) with `GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized,
+        // blocking: false, compacting: false)` - non-blocking mode lets the GC fold
+        // the work into its normal background collections instead of stopping the world.
+
+        stopwatch.Stop();
+
+        if (wasCancelled)
+            return $"Tuning was aborted after {FormatDuration(stopwatch.Elapsed)}.";
+
+        return BuildTuningCompletionMessage(packs.Length, stopwatch.Elapsed);
+    }
+
+
+    private static string BuildTuningCompletionMessage(int packCount, TimeSpan elapsed)
+    {
+        if (packCount == 0) return "No packs were processed.";
+
+        var verb = Random.Shared.NextDouble() < 0.5 ? "Completed" : "Finished";
+        var duration = FormatDuration(elapsed);
+        return packCount == 1
+            ? $"{verb} tuning in {duration}."
+            : $"{verb} tuning {packCount} packs - took {duration}!";
+    }
+
+    private static string FormatDuration(TimeSpan elapsed)
+    {
+        int totalSeconds = (int)Math.Round(elapsed.TotalSeconds);
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+
+        if (minutes == 0)
+        {
+            if (totalSeconds < 1) return "under a second";
+            return $"{seconds} second{(seconds == 1 ? "" : "s")}";
+        }
+
+        var minutePart = $"{minutes} minute{(minutes == 1 ? "" : "s")}";
+        return seconds == 0
+            ? minutePart
+            : $"{minutePart} and {seconds} second{(seconds == 1 ? "" : "s")}";
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Fog processor  ──  standalone
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static void ProcessFog(PackInfo pack, CancellationToken cancellationToken, bool processWaterOnly = false)
+    {
+        const double MIN_VALUE_THRESHOLD = 0.00000001;
+        const int DECIMAL_PRECISION = 6;
+
+        if (string.IsNullOrEmpty(pack.Path) || !Directory.Exists(pack.Path))
+            return;
+
+        var fogDirectories = Directory
+            .GetDirectories(pack.Path, "*", SearchOption.AllDirectories)
+            .Where(d => string.Equals(Path.GetFileName(d), "fogs", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
+        if (!fogDirectories.Any() && !processWaterOnly)
+        {
+            MainWindow.Log($"{pack.Name}: does not contain any fog files.", MainWindow.LogLevel.Informational);
+            return;
+        }
+
+        var files = fogDirectories
+            .SelectMany(dir =>
+            {
+                try { return Directory.GetFiles(dir, "*.json", SearchOption.TopDirectoryOnly); }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"[TUNER] Could not enumerate fog directory '{dir}': {ex.Message}");
+                    return Enumerable.Empty<string>();
+                }
+            })
+            .ToList();
+
+        if (!files.Any())
+            return;
+
+        foreach (var file in files)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                var text = File.ReadAllText(file);
+                var root = JObject.Parse(text);
+
+                var volumetric = root.SelectToken("minecraft:fog_settings.volumetric") as JObject;
+                if (volumetric == null) continue;
+
+                var modified = processWaterOnly
+                    ? ProcessWaterCoefficients(volumetric)
+                    : ProcessAirDensityAndScattering(volumetric);
+
+                if (modified)
+                {
+                    var jsonString = root.ToString(Newtonsoft.Json.Formatting.Indented);
+                    jsonString = RemoveScientificNotation(jsonString);
+                    File.WriteAllText(file, jsonString);
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"[TUNER] Error processing fog file '{file}': {ex.Message}");
+            }
+        }
+
+        bool ProcessAirDensityAndScattering(JObject volumetric)
+        {
+            var modified = false;
+            var density = volumetric.SelectToken("density") as JObject;
+            if (density == null) return false;
+
+            var airSection = density.SelectToken("air") as JObject;
+            var weatherSection = density.SelectToken("weather") as JObject;
+
+            var densityValues = new List<(string name, JObject section, double original, double multiplied)>();
+            var allDensities = new List<double>();
+
+            double airDensityFinal = 0.0;
+            double weatherDensityFinal = 0.0;
+
+            if (airSection != null && TryGetNumericValue(airSection.SelectToken("max_density"), out var airDensity))
+            {
+                allDensities.Add(airDensity);
+                if (Math.Abs(airDensity) < 0.0001)
+                {
+                    airDensityFinal = CalculateNewDensity(airDensity, FogMultiplier);
+                    if (Math.Abs(airDensityFinal - airDensity) >= MIN_VALUE_THRESHOLD)
+                    {
+                        airSection["max_density"] = ClampAndRound(airDensityFinal);
+                        modified = true;
+                    }
+                }
+                else
+                {
+                    var multiplied = airDensity * FogMultiplier;
+                    densityValues.Add(("air", airSection, airDensity, multiplied));
+                    airDensityFinal = multiplied;
+                }
+            }
+
+            if (weatherSection != null && TryGetNumericValue(weatherSection.SelectToken("max_density"), out var weatherDensity))
+            {
+                allDensities.Add(weatherDensity);
+                if (Math.Abs(weatherDensity) < 0.0001)
+                {
+                    weatherDensityFinal = CalculateNewDensity(weatherDensity, FogMultiplier);
+                    if (Math.Abs(weatherDensityFinal - weatherDensity) >= MIN_VALUE_THRESHOLD)
+                    {
+                        weatherSection["max_density"] = ClampAndRound(weatherDensityFinal);
+                        modified = true;
+                    }
+                }
+                else
+                {
+                    var multiplied = weatherDensity * FogMultiplier;
+                    densityValues.Add(("weather", weatherSection, weatherDensity, multiplied));
+                    weatherDensityFinal = multiplied;
+                }
+            }
+
+            if (densityValues.Any())
+            {
+                var maxMultiplied = densityValues.Max(x => x.multiplied);
+                var scaleFactor = maxMultiplied > 1.0 ? 1.0 / maxMultiplied : 1.0;
+
+                foreach (var (name, section, _, multiplied) in densityValues)
+                {
+                    var finalValue = multiplied * scaleFactor;
+                    section["max_density"] = ClampAndRound(finalValue);
+                    modified = true;
+
+                    if (name == "air") airDensityFinal = finalValue;
+                    else if (name == "weather") weatherDensityFinal = finalValue;
+                }
+            }
+
+            var finalDensities = new List<double>();
+            if (airDensityFinal > 0) finalDensities.Add(Math.Min(airDensityFinal, 1.0));
+            if (weatherDensityFinal > 0) finalDensities.Add(Math.Min(weatherDensityFinal, 1.0));
+
+            var avgDensity = finalDensities.Any() ? finalDensities.Average() :
+                                 (allDensities.Any() ? allDensities.Average() : 0.0);
+            var proximityToMax = Math.Min(avgDensity, 1.0);
+
+            if (proximityToMax > 0.0)
+            {
+                var overage = FogMultiplier - 1.0;
+                var dampenedOverage = overage * 0.25 * proximityToMax;
+                var scatteringMultiplier = 1.0 + dampenedOverage;
+
+                var airCoefficients = volumetric.SelectToken("media_coefficients.air") as JObject;
+                var scatteringArray = airCoefficients?.SelectToken("scattering") as JArray;
+
+                if (scatteringArray != null && scatteringArray.Count >= 3)
+                    modified |= ProcessRgbArray(scatteringArray, scatteringMultiplier);
+            }
+
+            modified |= MakeDensityUniform(airSection);
+            modified |= MakeDensityUniform(weatherSection);
+
+            return modified;
+        }
+
+        bool ProcessWaterCoefficients(JObject volumetric)
+        {
+            var modified = false;
+
+            var airDensity = GetDensityValue(volumetric, "density.air.max_density");
+            var weatherDensity = GetDensityValue(volumetric, "density.weather.max_density");
+
+            var densities = new[] { airDensity, weatherDensity }
+                .Where(d => d > 0)
+                .Select(d => Math.Min(d, 1.0))
+                .ToList();
+
+            var avgDensity = densities.Any() ? densities.Average() : 0.5;
+            var proximityToMin = 1.0 - avgDensity;
+            var overage = FogMultiplier - 1.0;
+            var dampenedOverage = overage * 0.1 * Math.Max(proximityToMin, 0.25);
+            var waterMultiplier = 1.0 + dampenedOverage;
+
+            var waterCoefficients = volumetric.SelectToken("media_coefficients.water") as JObject;
+            if (waterCoefficients == null) return false;
+
+            var scatteringArray = waterCoefficients.SelectToken("scattering") as JArray;
+            if (scatteringArray != null && scatteringArray.Count >= 3)
+                modified |= ProcessRgbArray(scatteringArray, waterMultiplier);
+
+            var absorptionArray = waterCoefficients.SelectToken("absorption") as JArray;
+            if (absorptionArray != null && absorptionArray.Count >= 3)
+                modified |= ProcessRgbArray(absorptionArray, waterMultiplier);
+
+            return modified;
+        }
+
+        bool ProcessRgbArray(JArray rgbArray, double multiplier)
+        {
+            var rgbValues = new double[3];
+            for (var i = 0; i < 3; i++)
+            {
+                if (!TryGetNumericValue(rgbArray[i], out rgbValues[i])) return false;
+                rgbValues[i] *= multiplier;
+            }
+
+            var maxRgb = rgbValues.Max();
+            if (maxRgb > 1.0)
+            {
+                var sf = 1.0 / maxRgb;
+                for (var i = 0; i < 3; i++) rgbValues[i] *= sf;
+            }
+
+            for (var i = 0; i < 3; i++) rgbArray[i] = ClampAndRound(rgbValues[i]);
+            return true;
+        }
+
+        bool MakeDensityUniform(JObject? section)
+        {
+            if (section == null || !FOG_UNIFORM_HEIGHT) return false;
+
+            var hasHeightFields = section.SelectToken("max_density_height") != null
+                               || section.SelectToken("zero_density_height") != null;
+            var isUniform = section.SelectToken("uniform")?.Value<bool>() ?? false;
+
+            if (hasHeightFields && !isUniform)
+            {
+                section.Remove("max_density_height");
+                section.Remove("zero_density_height");
+                section["uniform"] = true;
+                return true;
+            }
+            return false;
+        }
+
+        bool TryGetNumericValue(JToken? token, out double value)
+        {
+            value = 0.0;
+            if (token == null) return false;
+            return token.Type switch
+            {
+                JTokenType.Float or JTokenType.Integer => (value = token.Value<double>()) >= 0,
+                JTokenType.String => double.TryParse(token.Value<string>(), out value),
+                _ => false
+            };
+        }
+
+        double GetDensityValue(JObject volumetric, string path)
+        {
+            var token = volumetric.SelectToken(path);
+            return TryGetNumericValue(token, out var value) ? value : 0.0;
+        }
+
+        double ClampAndRound(double value)
+        {
+            var clamped = Math.Clamp(value, 0.0, 1.0);
+            var rounded = Math.Round(clamped, DECIMAL_PRECISION);
+            return Math.Abs(rounded) < MIN_VALUE_THRESHOLD ? 0.0 : rounded;
+        }
+
+        double CalculateNewDensity(double currentDensity, double fogMultiplier)
+        {
+            if (Math.Abs(currentDensity) < 0.0001)
+                return fogMultiplier <= 1.0
+                    ? Math.Clamp(fogMultiplier, 0.0, 1.0)
+                    : Math.Clamp(fogMultiplier / 10.0, 0.0, 1.0);
+
+            return Math.Clamp(currentDensity * fogMultiplier, 0.0, 1.0);
+        }
+
+        string RemoveScientificNotation(string jsonString)
+        {
+            const string pattern = @"(?<=:\s*|,\s*|\[\s*)(-?\d+\.?\d*[eE][+-]?\d+)(?=\s*[,\]\}]|\s*$)";
+            return Regex.Replace(jsonString, pattern, match =>
+            {
+                if (!double.TryParse(match.Value, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var value))
+                    return match.Value;
+
+                if (Math.Abs(value) < MIN_VALUE_THRESHOLD) return "0.0";
+                var rounded = Math.Round(value, DECIMAL_PRECISION);
+                if (Math.Abs(rounded) < MIN_VALUE_THRESHOLD) return "0.0";
+                return rounded.ToString($"0.{new string('#', DECIMAL_PRECISION)}",
+                    System.Globalization.CultureInfo.InvariantCulture);
+            });
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Sub-processors
+    //  (all rewritten to use FastBitmap instead of GetPixel/SetPixel - math and
+    //  results are untouched, only the pixel access mechanism changed)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Applies emissivity multiplier (first pass) and optional ambient light (second pass).
+    /// Pass skipMultiplierPass = true when the pack was previously tuned with ambient lighting
+    /// to prevent blinding over-brightness; the ambient pass still runs regardless.
+    /// </summary>
+    private static bool ApplyEmissivity(Bitmap bmp, bool skipMultiplierPass)
+    {
+        var userMult = EmissivityMultiplier;
+        var width = bmp.Width;
+        var height = bmp.Height;
+        var wroteBack = false;
+
+        using var fb = new FastBitmap(bmp, writable: true);
+
+        // If user mult under 1.0, always run, if higher, skip multiplier pass becomes relevant, it must be false for it to run.
+        // The bool is determined elsewhere in the code via PackContext
+        if (userMult < 1.0 || (!skipMultiplierPass && userMult > 1.0))
+        {
+            var maxGreen = 0;
+            for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                {
+                    int g = fb[x, y].G;
+                    if (g > maxGreen) maxGreen = g;
+                }
+
+            if (maxGreen > 0)
+            {
+                var ratio = 255.0 / maxGreen;
+                var effectiveMult = userMult < ratio ? userMult : ratio;
+                var excess = Math.Max(0, userMult - effectiveMult);
+
+                var excessOverage = excess - 1.0;
+                var dampenedExcessOverage = excessOverage * EMISSIVE_EXCESS_INTENSITY_DAMPEN;
+                var dampenedExcess = 1.0 + dampenedExcessOverage;
+
+                for (var y = 0; y < height; y++)
+                {
+                    for (var x = 0; x < width; x++)
+                    {
+                        var origColor = fb[x, y];
+                        int origG = origColor.G;
+                        if (origG == 0) continue;
+
+                        var newG = origG * effectiveMult;
+                        if (excess > 0)
+                            newG += origG * (dampenedExcess - 1.0);
+
+                        int finalG = newG < 127.5
+                            ? (int)Math.Ceiling(newG)
+                            : (int)Math.Floor(newG);
+                        finalG = Math.Clamp(finalG, 0, 255);
+
+                        if (finalG != origG)
+                        {
+                            wroteBack = true;
+                            fb[x, y] = Color.FromArgb(origColor.A, origColor.R, finalG, origColor.B);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (AddEmissivityAmbientLight)
+        {
+            // Ambient light is worth one level more than the multiplier the user set, until
+            // the knee -- so 2x reads 3, 6x reads 7 -- after which the tail saturates rather
+            // than keeps pace. The multiplier pass has already brightened every lit pixel by
+            // then; matching it here a second time, uniformly and over pixels that emit
+            // nothing, is what made a high multiplier plus this toggle blow a pack out.
+            //
+            // Rounded to the slider's own precision before flooring: 3.0 arriving as
+            // 2.9999999 would otherwise floor a whole level down.
+            //
+            // Floor, not ceiling: with a 0.1 step, ceiling made 1.1 through 1.9 all behave as
+            // a flat 2.0, so a single notch off 1.0 jumped a whole level. Never below 2 --
+            // at a 1.0 multiplier the multiplier pass does nothing at all, so this pass is the
+            // entire effect of the toggle and one green level is too faint to bother flipping
+            // it for. That minimum also carries the sub-1.0 multipliers, which are dimming.
+            var mult = Math.Round(userMult, 3);
+            var ambientRaw = mult <= AMBIENT_LINEAR_KNEE
+                ? 1.0 + mult
+                : 1.0 + AMBIENT_LINEAR_KNEE
+                    + (mult - AMBIENT_LINEAR_KNEE) / (1.0 + (mult - AMBIENT_LINEAR_KNEE) / AMBIENT_TAIL_SOFTNESS);
+            var ambientAmount = Math.Max(2, (int)Math.Floor(ambientRaw));
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var origColor = fb[x, y];
+                    var newG = Math.Clamp(origColor.G + ambientAmount, 0, 255);
+                    if (newG != origColor.G)
+                    {
+                        wroteBack = true;
+                        fb[x, y] = Color.FromArgb(origColor.A, origColor.R, newG, origColor.B);
+                    }
+                }
+            }
+        }
+
+        return wroteBack;
+    }
+
+    private static bool ApplyNormalIntensity(Bitmap bmp, bool isHeightmap)
+    {
+        return isHeightmap
+            ? ApplyHeightmapIntensity(bmp)
+            : ApplyNormalMapIntensity(bmp);
+    }
+
+    private static bool ApplyNormalMapIntensity(Bitmap bmp)
+    {
+        var intensityPercent = NormalIntensity / 100.0;
+        var width = bmp.Width;
+        var height = bmp.Height;
+        var wroteBack = false;
+
+        using var fb = new FastBitmap(bmp, writable: true);
+
+        if (intensityPercent <= 1.0)
+        {
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var orig = fb[x, y];
+                    var newR = Math.Clamp((int)Math.Round(128 + (orig.R - 128) * intensityPercent), 0, 255);
+                    var newG = Math.Clamp((int)Math.Round(128 + (orig.G - 128) * intensityPercent), 0, 255);
+
+                    // Blue = POM depth, anchored at 255 (surface), one-directional.
+                    // Shrinking intensity pulls every pixel's distance-from-surface toward
+                    // zero -- at 0% every pixel sits flush at 255. This direction can never
+                    // overflow (recession only ever shrinks), so no compression pass needed.
+                    var recession = 255 - orig.B;
+                    var newB = Math.Clamp((int)Math.Round(255 - recession * intensityPercent), 0, 255);
+
+                    if (newR != orig.R || newG != orig.G || newB != orig.B)
+                    {
+                        wroteBack = true;
+                        fb[x, y] = Color.FromArgb(orig.A, newR, newG, newB);
+                    }
+                }
+            }
+        }
+        else
+        {
+            double maxIdealDeviation = 0;  // worst-case R/G deviation from 128 (both directions)
+            double maxIdealRecession = 0;  // worst-case B distance from 255 (one direction only)
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var pixel = fb[x, y];
+
+                    var maxDev = Math.Max(
+                        Math.Abs((pixel.R - 128.0) * intensityPercent),
+                        Math.Abs((pixel.G - 128.0) * intensityPercent));
+                    if (maxDev > maxIdealDeviation) maxIdealDeviation = maxDev;
+
+                    var idealRecession = (255.0 - pixel.B) * intensityPercent;
+                    if (idealRecession > maxIdealRecession) maxIdealRecession = idealRecession;
+                }
+            }
+
+            if (maxIdealDeviation == 0 && maxIdealRecession == 0) return false;
+
+            // R/G share one ratio -- they're the two components of one vector, compressing
+            // them unevenly would distort normal direction, not just its strength.
+            var compressionRatio = maxIdealDeviation > 127.0 ? 127.0 / maxIdealDeviation : 1.0;
+
+            // B gets its own independent ratio -- unrelated axis, unrelated valid range
+            // (0-255 from the surface down, vs R/G's ±127 around center).
+            var recessionCompressionRatio = maxIdealRecession > 255.0 ? 255.0 / maxIdealRecession : 1.0;
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var orig = fb[x, y];
+
+                    var newR = Math.Clamp((int)Math.Round(128.0 + (orig.R - 128.0) * intensityPercent * compressionRatio), 0, 255);
+                    var newG = Math.Clamp((int)Math.Round(128.0 + (orig.G - 128.0) * intensityPercent * compressionRatio), 0, 255);
+
+                    var recession = 255.0 - orig.B;
+                    var newB = Math.Clamp((int)Math.Round(255.0 - recession * intensityPercent * recessionCompressionRatio), 0, 255);
+
+                    if (newR != orig.R || newG != orig.G || newB != orig.B)
+                    {
+                        wroteBack = true;
+                        fb[x, y] = Color.FromArgb(orig.A, newR, newG, newB);
+                    }
+                }
+            }
+        }
+
+        return wroteBack;
+    }
+
+    private static bool ApplyHeightmapIntensity(Bitmap bmp)
+    {
+        var userIntensity = NormalIntensity / 100.0;
+        var width = bmp.Width;
+        var height = bmp.Height;
+
+        using var fb = new FastBitmap(bmp, writable: true);
+
+        int minGray = 255, maxGray = 0;
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                var gray = fb[x, y].R;
+                if (gray < minGray) minGray = gray;
+                if (gray > maxGray) maxGray = gray;
+            }
+
+        double currentSpan = maxGray - minGray;
+        if (currentSpan == 0) return false;
+
+        var idealSpan = currentSpan * userIntensity;
+        var actualSpan = Math.Min(idealSpan, 255.0);
+        var currentCenter = (minGray + maxGray) / 2.0;
+        var compressionRatio = actualSpan / Math.Max(idealSpan, actualSpan);
+        var wroteBack = false;
+
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var orig = fb[x, y];
+                var newGray = Math.Clamp((int)Math.Round(127.5 + (orig.R - currentCenter) * userIntensity * compressionRatio), 0, 255);
+
+                if (newGray != orig.R)
+                {
+                    wroteBack = true;
+                    fb[x, y] = Color.FromArgb(orig.A, newGray, newGray, newGray);
+                }
+            }
+        }
+
+        return wroteBack;
+    }
+
+    /// <summary>
+    /// Lazifies a normal map or heightmap using the colour texture as a luminance guide.
+    /// Skipped when either input is virtual (enforced by the orchestrator).
+    /// </summary>
+    private static bool ApplyLazify(Bitmap colorBmp, Bitmap normalBmp, bool isHeightmap)
+    {
+        var alpha = LazifyNormalAlpha;
+        var width = normalBmp.Width;
+        var height = normalBmp.Height;
+
+        if (colorBmp.Width != width || colorBmp.Height != height)
+            return false;
+
+        using var colorFb = new FastBitmap(colorBmp, writable: false);
+        var paddedColormap = ApplyEdgePadding(colorFb);
+
+        var greyscale = new byte[width, height];
+        byte minV = 255, maxV = 0;
+
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                var c = paddedColormap[x, y];
+                var gv = (byte)(0.299 * c.R + 0.587 * c.G + 0.114 * c.B);
+                greyscale[x, y] = gv;
+                if (gv < minV) minV = gv;
+                if (gv > maxV) maxV = gv;
+            }
+
+        var stretched = new byte[width, height];
+        double range = maxV - minV;
+
+        if (range == 0)
+        {
+            for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                    stretched[x, y] = 128;
+        }
+        else
+        {
+            for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                    stretched[x, y] = (byte)((greyscale[x, y] - minV) / range * 255);
+        }
+
+        using var normalFb = new FastBitmap(normalBmp, writable: true);
+
+        if (isHeightmap)
+            return LazifyHeightmap(normalFb, stretched, alpha, width, height);
+
+        // A normal map's blue channel is POM depth, which Bedrock reads as recession from
+        // the surface: 255 is flush, 0 is deepest. Ceiling-maximizing the same luminance --
+        // a pure upward scale until the brightest pixel lands at 255 -- puts the texture's
+        // brightest spot at the surface and everything else a proportional depth beneath it,
+        // which is as close to a real height reading as luminance alone can get.
+        //
+        // Deliberately NOT the min->max stretch above: that one forces the darkest pixel to
+        // full depth on every texture regardless of how shallow its real range is, which is
+        // acceptable for R/G (they only ever describe slope) and wrong for depth.
+        //
+        // The lifted range is then stretched into [LAZIFY_POM_FLOOR, 255], but only when it
+        // actually reaches below the floor -- a texture whose darkest pixel already sits above
+        // it is left exactly as the lift left it, since there is nothing to rein in. Depth is
+        // capped rather than scaled by the slider because luminance is only a guess at height,
+        // and a guess should occupy a shallow slice of the range no matter how confidently it
+        // is being applied. Both ends of the stretch are anchored, so the texture's relative
+        // composition passes through intact.
+        //
+        // minV/maxV come from the edge-padded colourmap, where every transparent pixel has
+        // already been overwritten with the nearest opaque colour. That is what keeps a
+        // flower's transparent black corners out of these bounds; drop the padding pass and
+        // this needs an explicit alpha mask instead.
+        var ceiling = new byte[width, height];
+
+        // maxV == 0 means every pixel is the brightest pixel, so raising the brightest to 255
+        // raises all of them: a black texture is uniformly flush. Needs its own branch only
+        // because the multiply cannot express it.
+        double liftScale = maxV == 0 ? 0.0 : 255.0 / maxV;
+        double lowest = maxV == 0 ? 255.0 : minV * liftScale;
+
+        // Below the floor, both ends move: darkest to the floor, brightest stays pinned at the
+        // surface. At or above it, an identity.
+        double floorBase = lowest < LAZIFY_POM_FLOOR ? LAZIFY_POM_FLOOR : lowest;
+        double floorScale = lowest < LAZIFY_POM_FLOOR
+            ? (255.0 - LAZIFY_POM_FLOOR) / (255.0 - lowest)
+            : 1.0;
+
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                // Rounded, not truncated: the brightest pixel has to land exactly on 255 or
+                // the texture never quite reaches the surface. 200 * (255.0 / 200) lands a
+                // hair under 255 in floating point and truncates to 254.
+                double lifted = maxV == 0 ? 255.0 : greyscale[x, y] * liftScale;
+                ceiling[x, y] = (byte)Math.Clamp(
+                    Math.Round(floorBase + (lifted - lowest) * floorScale), 0, 255);
+            }
+
+        return LazifyNormalMap(normalFb, stretched, ceiling, alpha, width, height);
+    }
+
+    private static bool LazifyHeightmap(FastBitmap fb, byte[,] stretched, int alpha, int width, int height)
+    {
+        var wroteBack = false;
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var orig = fb[x, y];
+                var blended = (alpha * stretched[x, y] + (255 - alpha) * orig.R) / 255;
+                var finalValue = (byte)Math.Clamp(blended, 0, 255);
+
+                if (finalValue != orig.R)
+                {
+                    wroteBack = true;
+                    fb[x, y] = Color.FromArgb(orig.A, finalValue, finalValue, finalValue);
+                }
+            }
+        }
+        return wroteBack;
+    }
+
+    private static bool LazifyNormalMap(FastBitmap fb, byte[,] stretched, byte[,] ceiling, int alpha, int width, int height)
+    {
+        var expW = width * 3;
+        var expH = height * 3;
+        var expHmap = new byte[expW, expH];
+
+        for (var ty = 0; ty < 3; ty++)
+            for (var tx = 0; tx < 3; tx++)
+                for (var y = 0; y < height; y++)
+                    for (var x = 0; x < width; x++)
+                        expHmap[tx * width + x, ty * height + y] = stretched[x, y];
+
+        var expNormals = new (byte r, byte g)[expW, expH];
+
+        for (var y = 1; y < expH - 1; y++)
+        {
+            for (var x = 1; x < expW - 1; x++)
+            {
+                var gx =
+                    -1 * expHmap[x - 1, y - 1] + 1 * expHmap[x + 1, y - 1] +
+                    -2 * expHmap[x - 1, y] + 2 * expHmap[x + 1, y] +
+                    -1 * expHmap[x - 1, y + 1] + 1 * expHmap[x + 1, y + 1];
+
+                var gy =
+                    -1 * expHmap[x - 1, y - 1] - 2 * expHmap[x, y - 1] - 1 * expHmap[x + 1, y - 1] +
+                     1 * expHmap[x - 1, y + 1] + 2 * expHmap[x, y + 1] + 1 * expHmap[x + 1, y + 1];
+
+                var normalX = gx / (8.0 * 255.0);
+                var normalY = -gy / (8.0 * 255.0);
+
+                expNormals[x, y] = (
+                    (byte)Math.Clamp((normalX * 0.5 + 0.5) * 255, 0, 255),
+                    (byte)Math.Clamp((normalY * 0.5 + 0.5) * 255, 0, 255)
+                );
+            }
+        }
+
+        var genNormals = new (byte r, byte g)[width, height];
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+                genNormals[x, y] = expNormals[width + x, height + y];
+
+        double origIntensitySum = 0;
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                var p = fb[x, y];
+                origIntensitySum += (Math.Abs(p.R - 128) + Math.Abs(p.G - 128)) / 2.0;
+            }
+        double originalIntensity = origIntensitySum / (width * height);
+
+        var blended = new (byte r, byte g)[width, height];
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var orig = fb[x, y];
+                var (newR, newG) = genNormals[x, y];
+
+                var detailR = (alpha * newR + (255 - alpha) * 128) / 255.0;
+                var detailG = (alpha * newG + (255 - alpha) * 128) / 255.0;
+
+                var linearR = (orig.R + detailR) / 2.0;
+                var linearG = (orig.G + detailG) / 2.0;
+
+                double overlayR = orig.R < 128
+                    ? (2.0 * orig.R * detailR) / 255.0
+                    : 255.0 - (2.0 * (255.0 - orig.R) * (255.0 - detailR)) / 255.0;
+
+                double overlayG = orig.G < 128
+                    ? (2.0 * orig.G * detailG) / 255.0
+                    : 255.0 - (2.0 * (255.0 - orig.G) * (255.0 - detailG)) / 255.0;
+
+                blended[x, y] = (
+                    (byte)Math.Clamp(0.4 * linearR + 0.6 * overlayR, 0, 255),
+                    (byte)Math.Clamp(0.4 * linearG + 0.6 * overlayG, 0, 255)
+                );
+            }
+        }
+
+        double blendedIntensitySum = 0;
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                var (r, g) = blended[x, y];
+                blendedIntensitySum += (Math.Abs(r - 128) + Math.Abs(g - 128)) / 2.0;
+            }
+        double blendedIntensity = blendedIntensitySum / (width * height);
+        double intensityRatio = blendedIntensity > 0 ? originalIntensity / blendedIntensity : 1.0;
+
+        var wroteBack = false;
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var orig = fb[x, y];
+                var (bR, bG) = blended[x, y];
+
+                var finalR = (byte)Math.Clamp(128 + (bR - 128) * intensityRatio, 0, 255);
+                var finalG = (byte)Math.Clamp(128 + (bG - 128) * intensityRatio, 0, 255);
+
+                // Blue is blended in recession space rather than raw value space, because
+                // its neutral is 255 (the surface) and not 128 -- the overlay/renormalization
+                // machinery above is built around R/G's centre and would be meaningless here.
+                // A plain alpha blend, matching what LazifyHeightmap does with the same alpha:
+                // both describe relief, so both weaken the same way as the slider comes down.
+                var lazyRecession = 255 - ceiling[x, y];
+                var origRecession = 255 - orig.B;
+                var recession = (alpha * lazyRecession + (255 - alpha) * origRecession) / 255;
+                var finalB = (byte)Math.Clamp(255 - recession, 0, 255);
+
+                if (finalR != orig.R || finalG != orig.G || finalB != orig.B)
+                {
+                    wroteBack = true;
+                    fb[x, y] = Color.FromArgb(orig.A, finalR, finalG, finalB);
+                }
+            }
+        }
+
+        return wroteBack;
+    }
+
+    private static Color[,] ApplyEdgePadding(FastBitmap fb)
+    {
+        var width = fb.Width;
+        var height = fb.Height;
+        var result = new Color[width, height];
+        var isOpaque = new bool[width, height];
+
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                var p = fb[x, y];
+                result[x, y] = p;
+                isOpaque[x, y] = p.A > 0;
+            }
+
+        int maxPasses = width * height;
+        for (int pass = 0; pass < maxPasses; pass++)
+        {
+            var anyChanged = false;
+            var newOpaque = new bool[width, height];
+            Array.Copy(isOpaque, newOpaque, isOpaque.Length);
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    if (isOpaque[x, y]) continue;
+
+                    Color? nearest = null;
+                    if (x > 0 && isOpaque[x - 1, y]) nearest = result[x - 1, y];
+                    else if (x < width - 1 && isOpaque[x + 1, y]) nearest = result[x + 1, y];
+                    else if (y > 0 && isOpaque[x, y - 1]) nearest = result[x, y - 1];
+                    else if (y < height - 1 && isOpaque[x, y + 1]) nearest = result[x, y + 1];
+
+                    if (nearest.HasValue)
+                    {
+                        result[x, y] = Color.FromArgb(255, nearest.Value.R, nearest.Value.G, nearest.Value.B);
+                        newOpaque[x, y] = true;
+                        anyChanged = true;
+                    }
+                }
+            }
+
+            isOpaque = newOpaque;
+            if (!anyChanged) break;
+        }
+
+        return result;
+    }
+
+    private static bool ApplyRoughness(Bitmap bmp)
+    {
+        const double MetalnessModificationFraction = 0.33;
+        const double MetalnessInfluenceOnRoughnessReduction = 0.33;
+        const double BasePower = 2.2;
+        const double ImpactMultiplier = 2.4;
+        const double HighControlScaling = 8.0;
+
+        var controlValue = RoughnessControlValue;
+        if (controlValue == 0) return false;
+
+        bool isIncreasing = controlValue > 0;
+        int absControl = Math.Abs(controlValue);
+        var width = bmp.Width;
+        var height = bmp.Height;
+        var wroteBack = false;
+
+        using var fb = new FastBitmap(bmp, writable: true);
+
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var orig = fb[x, y];
+                int origRoughness = orig.B;
+                int origMetalness = orig.R;
+                int newRoughness, newMetalness;
+
+                if (isIncreasing)
+                {
+                    var normalized = origRoughness / 255.0;
+                    var curveAggression = BasePower + (absControl / 25.0) * 1.5;
+                    var inverseFactor = 1.0 - Math.Pow(normalized, curveAggression);
+                    var maxBoost = absControl * ImpactMultiplier + (absControl / 12.0) * HighControlScaling;
+
+                    newRoughness = Math.Clamp((int)Math.Floor(origRoughness + maxBoost * inverseFactor), 0, 255);
+
+                    newMetalness = origMetalness > 0
+                        ? Math.Clamp((int)Math.Floor(origMetalness - (newRoughness - origRoughness) * MetalnessModificationFraction), 0, 255)
+                        : origMetalness;
+                }
+                else
+                {
+                    var metalnessInfluence = origMetalness > 0 ? origMetalness / 255.0 : 0.0;
+                    var roughnessNormalized = origRoughness / 255.0;
+                    var curveAggression = BasePower + (absControl / 5.0) * 1.5;
+                    var maxReduction = absControl * ImpactMultiplier + (absControl / 5.0) * HighControlScaling;
+                    var baseReduction = maxReduction * Math.Pow(roughnessNormalized, curveAggression);
+                    var metalnessBonus = maxReduction * metalnessInfluence * MetalnessInfluenceOnRoughnessReduction;
+
+                    newRoughness = Math.Clamp((int)Math.Ceiling(origRoughness - (baseReduction + metalnessBonus)), 0, 255);
+
+                    if (origMetalness > 0)
+                    {
+                        var posCurveAggression = BasePower + (absControl / 25.0) * 1.5;
+                        var invFactor = 1.0 - Math.Pow(roughnessNormalized, posCurveAggression);
+                        var hypoMaxBoost = absControl * ImpactMultiplier + (absControl / 12.0) * HighControlScaling;
+                        newMetalness = Math.Clamp((int)Math.Ceiling(origMetalness + hypoMaxBoost * invFactor * MetalnessModificationFraction), 0, 255);
+                    }
+                    else newMetalness = origMetalness;
+                }
+
+                if (newRoughness != origRoughness || newMetalness != origMetalness)
+                {
+                    wroteBack = true;
+                    fb[x, y] = Color.FromArgb(orig.A, newMetalness, orig.G, newRoughness);
+                }
+            }
+        }
+
+        return wroteBack;
+    }
+
+    private static bool ApplyMaterialGrain(
+        Bitmap bmp,
+        string? sourceFilePath,
+        ConcurrentDictionary<string, (int[,] red, int[,] green, int[,] blue, int[,] checker)> noiseCache)
+    {
+        const double CHECKERBOARD_INTENSITY = 0.2;
+        const double CHECKERBOARD_NOISE_AMOUNT = 0.2;
+
+        var materialNoiseOffset = MaterialNoiseOffset;
+        if (materialNoiseOffset <= 0) return false;
+
+        var width = bmp.Width;
+        var height = bmp.Height;
+
+        var isAnimated = height >= width * 2 && width > 0 && height % width == 0;
+        var frameHeight = isAnimated ? width : height;
+        var frameCount = isAnimated ? height / width : 1;
+
+        var baseFilename = sourceFilePath != null
+            ? GetBaseFilename(sourceFilePath)
+            : $"virtual_{width}x{frameHeight}";
+        var cacheKey = $"{baseFilename}_{width}x{frameHeight}";
+
+        // GetOrAdd: safe even if two texture-set variants race to populate the same
+        // key concurrently - every caller ends up with the one winning noise pattern.
+        var (redOffsets, greenOffsets, blueOffsets, checkerboardOffsets) = noiseCache.GetOrAdd(cacheKey, _ =>
+        {
+            var rng = Random.Shared;
+            var red = new int[width, frameHeight];
+            var green = new int[width, frameHeight];
+            var blue = new int[width, frameHeight];
+            var checker = new int[width, frameHeight];
+
+            for (var y = 0; y < frameHeight; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    red[x, y] = rng.Next(-materialNoiseOffset, materialNoiseOffset + 1);
+                    green[x, y] = rng.Next(-materialNoiseOffset, materialNoiseOffset + 1);
+                    blue[x, y] = rng.Next(-materialNoiseOffset, materialNoiseOffset + 1);
+
+                    var baseChecker = ((x + y) % 2) * 255;
+                    var checkerNoise = rng.Next(
+                        (int)(-materialNoiseOffset * CHECKERBOARD_NOISE_AMOUNT),
+                        (int)(materialNoiseOffset * CHECKERBOARD_NOISE_AMOUNT) + 1);
+                    checker[x, y] = Math.Clamp(baseChecker + checkerNoise, 0, 255);
+                }
+            }
+
+            return (red, green, blue, checker);
+        });
+
+        var wroteBack = false;
+        using var fb = new FastBitmap(bmp, writable: true);
+
+        for (var frame = 0; frame < frameCount; frame++)
+        {
+            var frameStartY = frame * frameHeight;
+
+            for (var y = 0; y < frameHeight; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var actualY = frameStartY + y;
+                    var orig = fb[x, actualY];
+                    int r = orig.R, g = orig.G, b = orig.B;
+
+                    var checkerValue = (checkerboardOffsets[x, y] - 127.5) * (materialNoiseOffset / 127.5);
+
+                    var redFN = redOffsets[x, y] * (1.0 - CHECKERBOARD_INTENSITY) + checkerValue * CHECKERBOARD_INTENSITY;
+                    var greenFN = greenOffsets[x, y] * (1.0 - CHECKERBOARD_INTENSITY) + checkerValue * CHECKERBOARD_INTENSITY;
+                    var blueFN = blueOffsets[x, y] * (1.0 - CHECKERBOARD_INTENSITY) + checkerValue * CHECKERBOARD_INTENSITY;
+
+                    var redEff = CalculateEffectiveness(r);
+                    var greenEff = CalculateEffectiveness(g) * 0.2;
+                    var blueEff = CalculateEffectiveness(b);
+
+                    var newR = r + (int)Math.Round(redFN * redEff);
+                    var newG = g + (int)Math.Round(greenFN * greenEff);
+                    var newB = b + (int)Math.Round(blueFN * blueEff);
+
+                    if (newR < 0 || newR > 255) newR = r;
+                    if (newG < 0 || newG > 255) newG = g;
+                    if (newB < 0 || newB > 255) newB = b;
+
+                    if (newR != r || newG != g || newB != b)
+                    {
+                        wroteBack = true;
+                        fb[x, actualY] = Color.FromArgb(orig.A, newR, newG, newB);
+                    }
+                }
+            }
+        }
+
+        return wroteBack;
+
+        static double CalculateEffectiveness(int v) =>
+            v == 128 ? 1.0 :
+            v < 128 ? v / 128.0 :
+                       1.0 - (v - 128) * 0.67 / 127.0;
+
+        static string GetBaseFilename(string filePath)
+        {
+            var filename = Path.GetFileNameWithoutExtension(filePath);
+            var variantSuffixes = new[]
+            {
+                "on", "off", "active", "inactive", "dormant", "bloom",
+                "ejecting", "lit", "unlit", "powered", "crafting"
+            };
+
+            var parts = filename.Split('_');
+            var baseParts = new List<string>();
+            foreach (var part in parts)
+            {
+                if (!variantSuffixes.Any(s => part.Equals(s, StringComparison.OrdinalIgnoreCase)))
+                    baseParts.Add(part);
+            }
+
+            return string.Join("_", baseParts);
+        }
+    }
+}

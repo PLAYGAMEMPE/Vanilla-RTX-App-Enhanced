@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="Window.Title" xml:space="preserve"><value>Get Vanilla RTX</value></data>
+  <data name="WindowTitle.Text" xml:space="preserve"><value>Install or update Vanilla RTX resource packs</value></data>
+  <data name="WindowTitle_ForEdition" xml:space="preserve"><value>Vanilla RTX resource packs for {0}</value></data>
+
+  <data name="NormalsPanel_Description.Text" xml:space="preserve"><value>Vanilla RTX with handcrafted 16x normal maps for all blocks!</value></data>
+  <data name="VanillaPanel_Description.Text" xml:space="preserve"><value>The default ray-traced Minecraft graphics, everything is covered!</value></data>
+  <data name="OpusPanel_Description.Text" xml:space="preserve"><value>The composition of both Vanilla RTX and Vanilla RTX Normals!</value></data>
+
+  <data name="Panel_InstalledLabel.Text" xml:space="preserve"><value>Installed:</value></data>
+  <data name="Panel_InstalledLabel2.Text" xml:space="preserve"><value>Installed:</value></data>
+  <data name="Panel_InstalledLabel3.Text" xml:space="preserve"><value>Installed:</value></data>
+
+  <data name="Panel_AvailableLabel.Text" xml:space="preserve"><value>Available:</value></data>
+  <data name="Panel_AvailableLabel2.Text" xml:space="preserve"><value>Available:</value></data>
+  <data name="Panel_AvailableLabel3.Text" xml:space="preserve"><value>Available:</value></data>
+
+  <data name="Panel_NotInstalledText.Text" xml:space="preserve"><value>Not installed</value></data>
+  <data name="Panel_NotInstalledText2.Text" xml:space="preserve"><value>Not installed</value></data>
+  <data name="Panel_NotInstalledText3.Text" xml:space="preserve"><value>Not installed</value></data>
+
+  <data name="Panel_CheckingText.Text" xml:space="preserve"><value>Checking...</value></data>
+  <data name="Panel_CheckingText2.Text" xml:space="preserve"><value>Checking...</value></data>
+  <data name="Panel_CheckingText3.Text" xml:space="preserve"><value>Checking...</value></data>
+
+  <data name="Panel_EnhancementsToggle.Header" xml:space="preserve"><value>Enhancements</value></data>
+  <data name="Panel_EnhancementsToggle2.Header" xml:space="preserve"><value>Enhancements</value></data>
+  <data name="Panel_EnhancementsToggle3.Header" xml:space="preserve"><value>Enhancements</value></data>
+  <data name="Panel_EnhancementsToggle_ToolTip" xml:space="preserve"><value>Enables deployment of enhancements for this resource pack. This fixes numerous rendering errors/incompatibilities of vanilla features and resources with ray tracing and enhances various other resources such as particles for ray tracing. For more details, search the following URL: https://minecraftrtx.net/enhancements - It is generally recommended that you keep this enabled, unless it causes issues with another add-on or resource pack you're using.</value></data>
+
+  <data name="Panel_InstallButton.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="Panel_InstallButton2.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="Panel_InstallButton3.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="Panel_UpdateButton" xml:space="preserve"><value>Update</value></data>
+  <data name="Panel_ReinstallButton" xml:space="preserve"><value>Reinstall</value></data>
+
+  <data name="Panel_InstallingText" xml:space="preserve"><value>Installing</value></data>
+  <data name="Panel_UpdatingText" xml:space="preserve"><value>Updating</value></data>
+  <data name="Panel_ReinstallingText" xml:space="preserve"><value>Reinstalling</value></data>
+
+  <data name="Availability_FailedToCheck" xml:space="preserve"><value>Failed to check</value></data>
+  <data name="Availability_UpToDateOfflineCache" xml:space="preserve"><value>(Up-to-date, from offline cache)</value></data>
+  <data name="Availability_FromOfflineCache" xml:space="preserve"><value>(From offline cache)</value></data>
+  <data name="Availability_YouSeemUpToDate" xml:space="preserve"><value>(You seem up-to-date)</value></data>
+  <data name="Availability_YoureUpToDate" xml:space="preserve"><value>(You're up-to-date!)</value></data>
+
+  <data name="SpecialOccasion_Title.Text" xml:space="preserve"><value>Merry Christmas!</value></data>
+  <data name="SpecialOccasion_Body.Text" xml:space="preserve"><value>Get in the holiday spirit and jolly up Vanilla RTX with this special seasonal extension! Transform the world into a winter wonderland with frost-covered blocks, a freezing-cold Nether plus lots of other festive changes! Ho, ho, ho!
+                                           — Cubeir Claus</value></data>
+  <data name="SpecialOccasion_DownloadButton.Content" xml:space="preserve"><value>Get the Extension</value></data>
+  <data name="SpecialOccasion_OverlayDescription.Text" xml:space="preserve"><value>An extension of the Vanilla RTX resource pack, everything is covered in frost! Featuring unyielding cold!</value></data>
+
+  <data name="AddOnsPanel_Description.Text" xml:space="preserve"><value>A series of smaller packages that give certain blocks more interesting properties with ray tracing!</value></data>
+  <data name="ChemistryPanel_Description.Text" xml:space="preserve"><value>Optional Vanilla RTX extensions to extend ray tracing support to Education Edition content!</value></data>
+  <data name="CreativePanel_Description.Text" xml:space="preserve"><value>Replaces Element block textures with high definition, exotic materials for creative builds with RTX!</value></data>
+
+  <data name="StaticInfo_Text.Text" xml:space="preserve"><value>Other optional Vanilla RTX Add-Ons and Extensions can be downloaded and imported manually, they must be activated above one of the three primary Vanilla RTX resource packs in-game, they are not automatically updated by the app, because they rarely receive updated due their limited scope, making them perpetually forward-compatible.</value></data>
+
+</root>

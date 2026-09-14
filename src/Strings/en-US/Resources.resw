@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Shared / common strings used across more than one window, plus the
+       language-selector flyout itself (MainWindow.xaml.cs, PopulateLanguageFlyout). -->
+
+  <data name="Language_System" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="Language_RestartTitle" xml:space="preserve">
+    <value>Restart to apply language</value>
+  </data>
+  <data name="Language_RestartBody" xml:space="preserve">
+    <value>Vanilla RTX App needs to restart for the new language to take effect everywhere. You can also do this later - the choice is already saved.</value>
+  </data>
+  <data name="Language_RestartNow" xml:space="preserve">
+    <value>Restart now</value>
+  </data>
+  <data name="Language_RestartLater" xml:space="preserve">
+    <value>Later</value>
+  </data>
+
+  <!-- Generic dialog buttons reused by several windows -->
+  <data name="Common_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+</root>

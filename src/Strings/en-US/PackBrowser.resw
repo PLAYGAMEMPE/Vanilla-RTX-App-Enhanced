@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Window.Title" xml:space="preserve"><value>Browse Packs</value></data>
+  <data name="EmptyState_NoPacksInstalled" xml:space="preserve"><value>You don't seem to have any resource pack installed! Begin importing your packs here, or install Vanilla RTX from the main menu.</value></data>
+  <data name="SelectAllButton_ToolTip" xml:space="preserve"><value>Select all by tag or deselect all</value></data>
+  <data name="ConfirmButton_Text" xml:space="preserve"><value>Confirm selection</value></data>
+  <data name="ConfirmButton_ToolTip" xml:space="preserve"><value>Confirm selection and return to main menu</value></data>
+  <data name="AddPackButton_Text" xml:space="preserve"><value>Import more resource packs</value></data>
+  <data name="AddPackButton_ToolTip" xml:space="preserve"><value>Allows you to import your resource packs in bulk, supports .zip and .mcpacks formats, multiple packs bundled inside .mcaddon, as well as bulk import from packs inside a folder.</value></data>
+  <data name="WindowTitle_SelectFromPacks" xml:space="preserve"><value>Select from your {0} resource packs</value></data>
+  <data name="AddPackDescription_DragDropImport" xml:space="preserve"><value>Select or drag &amp; drop resource pack files here to import to {0} (.mcpack, .zip)</value></data>
+  <data name="DragUI_ImportPack" xml:space="preserve"><value>Import pack</value></data>
+  <data name="OverwriteDialog_Title" xml:space="preserve"><value>Pack already installed</value></data>
+  <data name="OverwriteDialog_Content" xml:space="preserve"><value>"{0}" is already installed at "{1}".
+
+Replace it with the incoming version?</value></data>
+  <data name="OverwriteDialog_PrimaryButtonText" xml:space="preserve"><value>Replace</value></data>
+  <data name="OverwriteDialog_CloseButtonText" xml:space="preserve"><value>Skip</value></data>
+  <data name="NonResourceDialog_Title" xml:space="preserve"><value>Not a resource pack</value></data>
+  <data name="NonResourceDialog_Content" xml:space="preserve"><value>"{0}" does not appear to be a resource pack, no module of type "resources" was found in its manifest.
+
+Import it anyway?</value></data>
+  <data name="NonResourceDialog_PrimaryButtonText" xml:space="preserve"><value>Import anyway</value></data>
+  <data name="NonResourceDialog_CloseButtonText" xml:space="preserve"><value>Skip</value></data>
+  <data name="EmptyState_NoPacksFoundPreview" xml:space="preserve"><value>No packs found in Minecraft Preview data directory.</value></data>
+  <data name="EmptyState_NoPacksFound" xml:space="preserve"><value>No packs found in Minecraft data directory.</value></data>
+  <data name="EmptyState_ErrorPrefix" xml:space="preserve"><value>Error: {0}</value></data>
+  <data name="Tag_IncludeAllWithTag" xml:space="preserve"><value>Include all with "{0}" tag</value></data>
+  <data name="SelectAllMenu_SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="SelectAllMenu_DeselectAll" xml:space="preserve"><value>Deselect all</value></data>
+  <data name="Badge_VersionPrefix" xml:space="preserve"><value>Version: {0}</value></data>
+  <data name="Tag_Incompatible" xml:space="preserve"><value>Incompatible with Tuner</value></data>
+  <data name="Tag_RayTraced" xml:space="preserve"><value>Ray Traced</value></data>
+</root>

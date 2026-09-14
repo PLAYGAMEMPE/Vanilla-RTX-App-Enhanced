@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- ===================== XAML x:Uid-resolved strings ===================== -->
+
+  <data name="LampInteractionButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Hold shift and click the lamp to copy app's logs for debugging.</value>
+  </data>
+  <data name="ChatButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Invitation to the Vanilla RTX Discord server.</value>
+  </data>
+  <data name="HelpButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open documentation</value>
+  </data>
+  <data name="DonateButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Buy the developer some coffee, Vanilla RTX is free and continued, help keep it that way!</value>
+  </data>
+  <data name="CycleThemeButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Theme: Unknown</value>
+  </data>
+  <data name="SuspendUIAnimationsToggle.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Disables unique UI animations throughout the app while active, could save some battery life on laptops.</value>
+  </data>
+  <data name="LanguageButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Language / Idioma</value>
+  </data>
+  <data name="BrowsePacksButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Select resource packs that you'd want to tune, export, or delete, you can also import more packs into Minecraft from this menu.</value>
+  </data>
+  <data name="TargetPreviewToggleText.Text" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="TargetPreviewToggle.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>If enabled, all functionalities of the app target Minecraft Preview instead of stable Minecraft Release.</value>
+  </data>
+  <data name="PackSelectionOptionsBorder.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Select which Vanilla RTX packs to process.&#x0a;&#x0a;If a checkbox isn't selectable, it means that pack currently not installed, begin installing Vanilla RTX resource packs by clicking the Get latest RTX packs button.</value>
+  </data>
+  <data name="SidebarLog.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Relevant logs appear here to inform, guide, or warn you as you interact with the app.</value>
+  </data>
+
+  <data name="ClearButtonText.Text" xml:space="preserve">
+    <value>Clear selection</value>
+  </data>
+  <data name="ClearButtonBorder.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Clears all pack sections.</value>
+  </data>
+  <data name="ResetButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Default Function: Resets tuning options back to their default values.&#x0a;&#x0a;FOR ADVANCED USERS: Hold shift while pressing to perform a hard reset that wipes all of app's data everywhere, making it as if it was freshly installed. Might also prompt you for reverting back to Default RTX/Default LUT files if needed, so your defaults aren't lost the next time you use the app.</value>
+  </data>
+  <data name="ResetButton_TextBlock.Text" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+
+  <data name="FogMultiplierLabel.Text" xml:space="preserve">
+    <value>Fog density multiplier</value>
+  </data>
+  <data name="FogMultiplierLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Scales all fog densities with the given multiplier.&#x0a;&#x0a;Recommended ranges:&#x0a;0.2–0.8 for lighter fog&#x0a;1.5-3.0 for dense fog&#x0a;0.0 to disable air fog&#x0a;&#x0a;Advanced tip: The value of the multiplier will be treated as, and applied, as a literal density value if fog density is already too small (like 0) to multiply.</value>
+  </data>
+
+  <data name="EmissivityMultiplierLabel.Text" xml:space="preserve">
+    <value>Emissive strength multiplier</value>
+  </data>
+  <data name="EmissivityMultiplierLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Scales glowing effects of all emissive blocks.&#x0a;&#x0a;Examples:&#x0a;1 = default&#x0a;0.5 = half brightness&#x0a;higher values = stronger glowing effects on blocks.</value>
+  </data>
+
+  <data name="AmbientLightLabel.Text" xml:space="preserve">
+    <value>Increase ambient lighting</value>
+  </data>
+  <data name="AmbientLightLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Modifies ambient lighting when emissivity is adjusted, higher emissive multipliers strengthen the effect.&#x0a;&#x0a;Note: Applying this option to a resource pack will block Emissive multiplier from being applied to that resource pack ever again unless the resource pack is reset/reinstalled freshly.</value>
+  </data>
+  <data name="EmissivityAmbientLightToggle.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Emissivity Ambient Light Toggle</value>
+  </data>
+  <data name="EmissivityWarningIcon.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Enabling this option while tuning a resource pack will cause future tuning attempts to skip applying the Emissivity Multiplier slider to that pack, this intentional guardrail keeps PBR from appearing broken.&#x0a;Furthermore, this option is intended for RTX resource packs only, do not enable for Vibrant Visuals resource packs. Use this option sparingly or as the last step in tuning a resource pack to your taste.</value>
+  </data>
+
+  <data name="NormalIntensityLabel.Text" xml:space="preserve">
+    <value>Surface 3D effect intensity</value>
+  </data>
+  <data name="NormalIntensityLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Adjust intensity of normal maps, heightmaps, and parallax occlusion mapping in percentage, if available.&#x0a;&#x0a;0% = flattens all textures&#x0a;100% = default (no change)&#x0a;Higher values = stronger 3D effects on surfaces.</value>
+  </data>
+
+  <data name="MaterialNoiseLabel.Text" xml:space="preserve">
+    <value>Material grain offset</value>
+  </data>
+  <data name="MaterialNoiseLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Adds additional detail to PBR textures and reduces uniformity by adding a layer of noise to PBR textures, impacts mid-range values harder and extreme values less. Impacts emissives less than roughness and metalness properties.&#x0a;Your input determines the maximum possible deviation from the original values.</value>
+  </data>
+
+  <data name="RoughenUpLabel.Text" xml:space="preserve">
+    <value>Roughness control</value>
+  </data>
+  <data name="RoughenUpLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Adjusts overall balance of roughness and metalness of materials.&#x0a;&#x0a;Higher values result in overall fewer or weaker glossy surfaces and metallic metals&#x0a;Negative values strengthen glossy or metallic surfaces.&#x0a;Uses a smart decaying curve to impact extreme values that are relevant. Keeps each texture's composition/relative values intact.</value>
+  </data>
+
+  <data name="LazifyNormalsLabel.Text" xml:space="preserve">
+    <value>Lazify surface normals</value>
+  </data>
+  <data name="LazifyNormalsLabel.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Lazifies heightmaps and normal maps by reducing refinedness.&#x0a;&#x0a;0 = no change&#x0a;255 = fully lazy&#x0a;Resource packs that are already shoddy might see no change or even slight improvements, while higher quality packs can receive an additional layer of detail, for which a small value under 20 is generally recommended.</value>
+  </data>
+
+  <data name="TuneSelectionButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Begins permanently modifying all of the selected packs using the current set of parameters above.&#x0a;&#x0a;Ensure Minecraft is closed while packs are being tuned to avoid issues; Or at the very least reload your world to see the changes take effect.</value>
+  </data>
+  <data name="ExportButtonText.Text" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Exports selected packages as .mcpack for creating backups or easy sharing.</value>
+  </data>
+  <data name="DeleteButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Physically delete the files of the selected packages from game's data directory.&#x0a;&#x0a;WARNING FOR ADVANCED USERS: This functionality walks up to the parent directory of the selected resource pack, as to not leave orphaned empty folders behind, if you keep other files inside a resource pack, or keep multiple resource packs inside one folder for whatever the reason, steer clear of this button.</value>
+  </data>
+
+  <data name="LaunchPackUpdateButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>See installation information, update availability &amp; news of Vanilla RTX resource packs. Get updates faster, install or simply reinstall each pack.</value>
+  </data>
+  <data name="UpdateVanillaRTXButtonText.Text" xml:space="preserve">
+    <value>Get latest RTX packs</value>
+  </data>
+  <data name="LaunchLUTManagerButtonText.Text" xml:space="preserve">
+    <value>RTX LUT manager</value>
+  </data>
+  <data name="LaunchLUTManagerButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Provides simpler, more reliable alternative to BetterRTX that works across all game versions by modifying RTX's default color look up tables.</value>
+  </data>
+  <data name="LaunchAlchitexButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>RTX Reactor can generate RTX support for any regular Minecraft Bedrock Edition texture pack.
+&#x0a;It does so by generating PBR texture sets for each texture, adding RTX-specific configurations, and making adjustments to textures where needed for ray tracing.
+&#x0a;&#x0a;Ideally, packs tagged as RTX Reactor Candidates are most likely to benefit from this feature.</value>
+  </data>
+  <data name="LaunchBetterRTXManagerButtonText.Text" xml:space="preserve">
+    <value>BetterRTX manager</value>
+  </data>
+  <data name="LaunchBetterRTXManagerButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Manage and install BetterRTX presets.</value>
+  </data>
+  <data name="LaunchMinecraftButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Launches Minecraft or Minecraft Preview with ray tracing pre-enabled to avoid issues. Additionally disables VSync for better performance and enables in-game graphics mode switching.&#x0a;&#x0a;FOR ADVANCED USERS: Holding shift while pressing this button enables game's VSync instead.</value>
+  </data>
+  <data name="LaunchButtonText.Text" xml:space="preserve">
+    <value>Launch Minecraft RTX</value>
+  </data>
+  <data name="LaunchDLSSSwapperButtonText.Text" xml:space="preserve">
+    <value>DLSS swapper</value>
+  </data>
+  <data name="LaunchDLSSSwapperButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Import various DLSS versions that you want, and quickly swap between them.</value>
+  </data>
+
+  <!-- ===================== Code-behind (C#) strings ===================== -->
+
+  <data name="Theme_Prefix" xml:space="preserve">
+    <value>Theme: {0}</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+
+  <data name="SuspendAnimations_ActiveTooltip" xml:space="preserve">
+    <value>All unique UI animations are currently suspended, click again to enable them.</value>
+  </data>
+  <data name="SuspendAnimations_InactiveTooltip" xml:space="preserve">
+    <value>Disables unique UI animations throughout the app while active.</value>
+  </data>
+
+  <data name="CrashReport_Title" xml:space="preserve">
+    <value>Previous Session Crash Report</value>
+  </data>
+  <data name="CrashReport_CopyButton" xml:space="preserve">
+    <value>Copy Crash Logs</value>
+  </data>
+  <data name="CrashReport_CopyButton_Copied" xml:space="preserve">
+    <value>Copied!</value>
+  </data>
+  <data name="CrashReport_GithubLink" xml:space="preserve">
+    <value>Create an issue on GitHub</value>
+  </data>
+  <data name="CrashReport_DiscordLink" xml:space="preserve">
+    <value>Create a post on the Vanilla RTX Discord Server</value>
+  </data>
+  <data name="CrashReport_DismissButton" xml:space="preserve">
+    <value>Continue Using the App (dismisses the report)</value>
+  </data>
+  <data name="CrashReport_Body" xml:space="preserve">
+    <value>Oh no! Looks like a crash occurred during the previous session, you may continue to use the app, but it would be better if you report it to the developer to see it patched up soon!</value>
+  </data>
+  <data name="CrashReport_ReportMethods" xml:space="preserve">
+    <value>Report using one of the following methods:</value>
+  </data>
+  <data name="CrashReport_DetailsLabel" xml:space="preserve">
+    <value>Crash details:</value>
+  </data>
+
+  <data name="Log_OpenUrlDisabledDebug" xml:space="preserve">
+    <value>OpenUrl is disabled in debug builds.</value>
+  </data>
+  <data name="Log_OpenUrlFailedDetails" xml:space="preserve">
+    <value>Details: {0}</value>
+  </data>
+  <data name="Log_OpenUrlFailed" xml:space="preserve">
+    <value>Failed to open URL. Make sure you have a browser installed and associated with web links.</value>
+  </data>
+
+  <data name="PackVM_SelectOtherPacks" xml:space="preserve">
+    <value>Select other packs</value>
+  </data>
+  <data name="PackVM_SelectedOnePack" xml:space="preserve">
+    <value>Selected 1 other pack</value>
+  </data>
+  <data name="PackVM_SelectedPacks" xml:space="preserve">
+    <value>Selected {0} other packs</value>
+  </data>
+  <data name="PackVM_LocateUserData" xml:space="preserve">
+    <value>Locate {0} user data</value>
+  </data>
+  <data name="PackVM_Edition_Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="PackVM_Edition_Stable" xml:space="preserve">
+    <value>Stable</value>
+  </data>
+
+  <data name="Log_AppVersionDisclaimer" xml:space="preserve">
+    <value>App Version: {0}
+
+Not affiliated with Mojang or NVIDIA;
+by continuing, you consent to modifications to your Minecraft installations &amp; data.</value>
+  </data>
+  <data name="TitleBarText_VersionTooltip" xml:space="preserve">
+    <value>Version: {0}</value>
+  </data>
+  <data name="Log_PleaseCloseMinecraft" xml:space="preserve">
+    <value>Please close Minecraft while using the app. Once finished, launch the game using {0} button.</value>
+  </data>
+
+  <data name="Log_ChatInvitation" xml:space="preserve">
+    <value>Here is the invitation!
+Discord.gg/A4wv4wwYud</value>
+  </data>
+  <data name="Log_HelpDocumentation" xml:space="preserve">
+    <value>Find helpful resources in the README file, launching in your default browser shortly.</value>
+  </data>
+  <data name="Log_HelpHoverInfo" xml:space="preserve">
+    <value>Open a page with full documentation of the app and a how-to guide.</value>
+  </data>
+
+  <data name="Log_TargetingPreview" xml:space="preserve">
+    <value>Targeting Minecraft Preview.</value>
+  </data>
+  <data name="Log_TargetingStable" xml:space="preserve">
+    <value>Targeting stable Minecraft Release.</value>
+  </data>
+
+  <data name="Dialog_WipeData_Title" xml:space="preserve">
+    <value>You're about to completely wipe all of app's data.</value>
+  </data>
+  <data name="Dialog_WipeData_Body" xml:space="preserve">
+    <value>This will delete all of application's data across your device, including Default RTX &amp; LUT files which the app obtained from your actual game files!
+As such, you may be prompted to accept multiple admin privilege requests in order to let the app restore your game's default files before they're gone from app's data.</value>
+  </data>
+  <data name="Dialog_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Log_WipeDataCancelled" xml:space="preserve">
+    <value>Wiping app's data (Shift + Reset) was cancelled by user.</value>
+  </data>
+  <data name="Log_HardResetError" xml:space="preserve">
+    <value>Hard Reset Error: {0}</value>
+  </data>
+
+  <data name="Log_ResetExtraInfo" xml:space="preserve">
+    <value>Note:
+This does not restore the packs to their default state!
+To reset packs back to original you can quickly reinstall the latest versions of Vanilla RTX using the '{0}' button. Other packs will require manual reinstallation. Use Export to back them up and quickly reimport them as you need.</value>
+  </data>
+  <data name="Log_TuningEnvironmentReset" xml:space="preserve">
+    <value>Tuning environment reset.</value>
+  </data>
+
+  <data name="Log_ClearedAllPacks" xml:space="preserve">
+    <value>Cleared all pack selections.</value>
+  </data>
+  <data name="Log_DeselectedVanillaRTX" xml:space="preserve">
+    <value>Deselected all Vanilla RTX packs.</value>
+  </data>
+  <data name="Log_NothingToClear" xml:space="preserve">
+    <value>You haven't selected any resource pack to clear.</value>
+  </data>
+
+  <data name="Log_HardResetStart" xml:space="preserve">
+    <value>Starting hard reset, this will wipe all of app's storage and temporary files...</value>
+  </data>
+  <data name="Log_DeletedKey" xml:space="preserve">
+    <value>Deleted key: {0}/{1}</value>
+  </data>
+  <data name="Log_DeletedContainer" xml:space="preserve">
+    <value>Deleted container: {0}/{1}</value>
+  </data>
+  <data name="Log_WipedSettingKeys" xml:space="preserve">
+    <value>Wiped {0} setting key(s) across all containers.</value>
+  </data>
+  <data name="Log_WipingFolder" xml:space="preserve">
+    <value>Wiping {0}: {1}</value>
+  </data>
+  <data name="Log_FolderNotFoundSkipping" xml:space="preserve">
+    <value>{0} not found, skipping.</value>
+  </data>
+  <data name="Log_DeletedFile" xml:space="preserve">
+    <value>Deleted file: {0}</value>
+  </data>
+  <data name="Log_CouldNotDeleteFile" xml:space="preserve">
+    <value>Could not delete file {0}: {1}</value>
+  </data>
+  <data name="Log_DeletedFolder" xml:space="preserve">
+    <value>Deleted folder: {0}</value>
+  </data>
+  <data name="Log_CouldNotDeleteFolder" xml:space="preserve">
+    <value>Could not delete folder {0}: {1}</value>
+  </data>
+  <data name="Log_FolderWiped" xml:space="preserve">
+    <value>{0} wiped ({1} item(s)).</value>
+  </data>
+  <data name="Log_TotalItemsDeleted" xml:space="preserve">
+    <value>Deleted {0} file/folder item(s) total.</value>
+  </data>
+  <data name="Log_HardResetComplete" xml:space="preserve">
+    <value>Hard reset complete! The app will restart in a moment...</value>
+  </data>
+  <data name="Log_HardResetGeneralError" xml:space="preserve">
+    <value>Error during hard reset: {0}</value>
+  </data>
+  <data name="Log_CheckingActivePresets" xml:space="preserve">
+    <value>Checking for active custom presets that need to be reverted first...</value>
+  </data>
+  <data name="Log_GuardReverted" xml:space="preserve">
+    <value>{0}: reverted to Default before wipe.</value>
+  </data>
+  <data name="Log_GuardRestoreFailed" xml:space="preserve">
+    <value>{0}: tried to revert to Default but it failed - the game may still be on a modified preset.</value>
+  </data>
+  <data name="Log_GuardSkipped" xml:space="preserve">
+    <value>{0}: couldn't safely verify preset state - left untouched.</value>
+  </data>
+  <data name="Log_GuardNoActionNeeded" xml:space="preserve">
+    <value>{0}: already on Default or nothing to protect.</value>
+  </data>
+
+  <data name="Log_SelectPackToDelete" xml:space="preserve">
+    <value>Select at least one pack to delete.</value>
+  </data>
+  <data name="Dialog_DeletePacks_Title" xml:space="preserve">
+    <value>Delete selected packs?</value>
+  </data>
+  <data name="Dialog_DeletePacks_Body_Singular" xml:space="preserve">
+    <value>This will delete {0} pack forever! (A very long time!)</value>
+  </data>
+  <data name="Dialog_DeletePacks_Body_Plural" xml:space="preserve">
+    <value>This will delete {0} packs forever! (A very long time!)</value>
+  </data>
+  <data name="Dialog_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Log_DeleteCancelled_Singular" xml:space="preserve">
+    <value>Deleting selected pack was cancelled by user.</value>
+  </data>
+  <data name="Log_DeleteCancelled_Plural" xml:space="preserve">
+    <value>Deleting selected packs was cancelled by user.</value>
+  </data>
+  <data name="Log_DuplicateInDeletionQueue" xml:space="preserve">
+    <value>{0} was found in the deletion queue more than once, skipped duplicate selection.</value>
+  </data>
+  <data name="Log_Deleted" xml:space="preserve">
+    <value>Deleted {0}.</value>
+  </data>
+  <data name="Log_CouldNotDelete" xml:space="preserve">
+    <value>Could not delete {0}.
+see trace output for details by holding shift while clicking the lamp icon.</value>
+  </data>
+  <data name="Log_DeleteFailed" xml:space="preserve">
+    <value>Delete failed: {0}</value>
+  </data>
+  <data name="Log_NoPacksDeleted" xml:space="preserve">
+    <value>No packs were deleted.</value>
+  </data>
+
+  <data name="RestoreOriginalButtonText.Text" xml:space="preserve">
+    <value>Restore original</value>
+  </data>
+  <data name="RestoreOriginal_ToolTip" xml:space="preserve">
+    <value>Restores the selected pack(s) back to how they were the first time this app ever touched them - undoes Tuner's changes, or replaces whatever a pack update left behind.&#x0a;&#x0a;Only works for packs the app has automatically backed up before modifying/removing them; packs never tuned, updated, or re-imported through the app have nothing to restore.</value>
+  </data>
+  <data name="Log_NoBackupsToRestore" xml:space="preserve">
+    <value>None of the selected packs have a backup to restore - they were never tuned, updated, or re-imported through this app.</value>
+  </data>
+  <data name="Dialog_RestoreOriginal_Title" xml:space="preserve">
+    <value>Restore original pack files?</value>
+  </data>
+  <data name="Dialog_RestoreOriginal_Body" xml:space="preserve">
+    <value>This will replace the current files of the following pack(s) with the backup taken the first time this app touched them, undoing any tuning or updates made since: {0}</value>
+  </data>
+  <data name="Dialog_RestoreOriginal_Confirm" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Log_RestoreCancelled" xml:space="preserve">
+    <value>Restoring original pack files was cancelled by user.</value>
+  </data>
+  <data name="Log_RestoredOriginal" xml:space="preserve">
+    <value>Restored {0} to its original files.</value>
+  </data>
+  <data name="Log_RestoreOriginalFailed" xml:space="preserve">
+    <value>Could not restore {0} - see trace output for details by holding shift while clicking the lamp icon.</value>
+  </data>
+  <data name="Log_RestoreOriginalError" xml:space="preserve">
+    <value>Something went wrong while restoring original pack files: {0}</value>
+  </data>
+  <data name="Log_NothingRestored" xml:space="preserve">
+    <value>Nothing was restored.</value>
+  </data>
+
+  <data name="Log_DuplicateExportSelection" xml:space="preserve">
+    <value>{0} was selected twice, but will only be exported once!</value>
+  </data>
+  <data name="Log_ExportFinished" xml:space="preserve">
+    <value>Finished exporting {0} to {1}</value>
+  </data>
+  <data name="Log_SelectPackToExport" xml:space="preserve">
+    <value>Select at least one pack to export.</value>
+  </data>
+  <data name="Log_AllExportsFailed" xml:space="preserve">
+    <value>All exports failed.</value>
+  </data>
+
+  <data name="TuneButton_Stopping" xml:space="preserve">
+    <value>Stopping...</value>
+  </data>
+  <data name="TuneButton_Abort" xml:space="preserve">
+    <value>Abort tuning operation</value>
+  </data>
+  <data name="TuneButton_Default" xml:space="preserve">
+    <value>Tune selection</value>
+  </data>
+  <data name="Log_SomeIncompatiblePacks" xml:space="preserve">
+    <value>Some of the selected packs are not RTX compatible &amp; will be excluded from the tuning process.</value>
+  </data>
+  <data name="Log_NoneCompatibleHasIncompatible" xml:space="preserve">
+    <value>None of the selected packs are RTX or Vibrant Visuals compatible. Select at least one compatible pack to tune.</value>
+  </data>
+  <data name="Log_SelectCompatiblePack" xml:space="preserve">
+    <value>Select at least one compatible pack to tune.</value>
+  </data>
+  <data name="TuneButton_AbortTooltip" xml:space="preserve">
+    <value>Stops the tuning operation. Textures already finished keep their changes; anything not yet reached by the Tuner is left untouched.</value>
+  </data>
+  <data name="Log_TuningCancelled" xml:space="preserve">
+    <value>Tuning was cancelled.</value>
+  </data>
+  <data name="Log_TuningError" xml:space="preserve">
+    <value>Something went wrong during the tuning process: {0}</value>
+  </data>
+
+  <data name="Log_MinecraftAlreadyOpen" xml:space="preserve">
+    <value>Minecraft already seems to be open. Please restart the game for options.txt changes to take effect.</value>
+  </data>
+
+  <data name="Log_AlchitexExplainer" xml:space="preserve">
+    <value>RTX Reactor generates proper RTX support for texture packs, it works best on packs with no PBR textures of their own.</value>
+  </data>
+  <data name="Log_AlchitexSelectCandidate" xml:space="preserve">
+    <value>You must select at least one '{0}' from your resource packs to use this feature on.</value>
+  </data>
+  <data name="Log_AlchitexOpenAnywayDebug" xml:space="preserve">
+    <value>No packs selected - opening RTX Reactor anyway (Debug build).</value>
+  </data>
+  <data name="Log_AlchitexMustSelectPack" xml:space="preserve">
+    <value>You must select at least one resource pack to use this feature on.</value>
+  </data>
+  <data name="Log_AlchitexNoneTagged" xml:space="preserve">
+    <value>None of your selected packs is tagged '{0}' - RTX Reactor will ask you to confirm each one before generating.</value>
+  </data>
+
+  <data name="Log_ManualDataInvalidFolder" xml:space="preserve">
+    <value>That doesn't look like a valid {0} data folder. Please select the folder named "{1}", it should be the one that contains a "Users" subfolder.</value>
+  </data>
+  <data name="Log_ManualDataFolderSet" xml:space="preserve">
+    <value>{0} data folder set: {1}
+
+💾 The app is going to remember this location, you can now continue to use features that relied on user data.
+But if you've selected a wrong location, features might not work properly, to reselect another path, you will need to Wipe app's data by holding shift, which changes Reset button to Wipe, click it and try again.</value>
+  </data>
+
+  <data name="Tooltip_LocateUserData" xml:space="preserve">
+    <value>The app couldn't find {0} data folder automatically - click to locate it manually.</value>
+  </data>
+  <data name="Log_CouldNotFindUserDataFolder" xml:space="preserve">
+    <value>Couldn't find {0} user data folder automatically. Here's what to do:
+Click "Locate {1} user data" button above, find and select the folder named "{2}" - It's the one with a "Users" subfolder inside it.
+If you don't have {0} installed, you can ignore this warning. Also make sure you've played the game at least once if you've installed or reinstalled recently.
+If you select a wrong location, you will need to wipe app's data to be able to select any other location. To do that, hold shift while in app's main window and press the Wipe button.</value>
+  </data>
+
+</root>

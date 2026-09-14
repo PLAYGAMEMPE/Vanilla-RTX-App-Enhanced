@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Window.Title" xml:space="preserve"><value>RTX Reactor</value></data>
+  <data name="TitleBarText.Text" xml:space="preserve"><value>License Agreement</value></data>
+  <data name="DisagreeButton.Content" xml:space="preserve"><value>Disagree and close</value></data>
+  <data name="AgreeButton.Content" xml:space="preserve"><value>I have read and agreed to the terms and conditions of this feature</value></data>
+  <data name="InfoButton_ToolTip" xml:space="preserve"><value>Learn more...</value></data>
+  <data name="License_OnlineVersion" xml:space="preserve"><value>Online version:</value></data>
+  <data name="License_ViewOnGitHub" xml:space="preserve"><value>View on GitHub</value></data>
+  <data name="License_LoadError" xml:space="preserve"><value>Could not load license file: {0}</value></data>
+  <data name="TitleBarText_RtxReactor" xml:space="preserve"><value>RTX Reactor</value></data>
+</root>

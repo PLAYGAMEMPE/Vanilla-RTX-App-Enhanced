@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="Window.Title" xml:space="preserve"><value>Administrador de BetterRTX</value></data>
+  <data name="ManualSelectionIntroText.Text" xml:space="preserve"><value>¡La aplicación no pudo ubicar automáticamente los archivos de tu juego usando los métodos rápidos habituales!&#x0a;Hay un escaneo de todo el sistema en curso; existe una alta probabilidad de que encuentre tu juego si le das suficiente tiempo.</value></data>
+  <data name="ManualSelectionText.Text" xml:space="preserve"><value>¿Está tardando demasiado? Haz clic para navegar manualmente hasta la carpeta donde está instalado el juego; debe contener un archivo llamado Minecraft.Windows.exe.&#x0a;&#x0a;La aplicación es tolerante con selecciones de ubicación un poco imprecisas, igual intentará explorar alrededor sin importar dónde selecciones, pero si sigues teniendo problemas para encontrar dónde está instalado tu juego, únete al servidor de Discord de Vanilla RTX y pide ayuda, o intenta averiguarlo en línea.</value></data>
+  <data name="EmptyStateText.Text" xml:space="preserve"><value>No hay presets de BetterRTX en caché</value></data>
+
+  <data name="RefreshButton_ToolTip" xml:space="preserve"><value>Restablece la caché, eliminando todos los presets importados y los archivos descargados de la API de BetterRTX, forzando una nueva descarga.&#x0a;&#x0a;Nota: Esto ocurre automáticamente cada vez que Minecraft se actualiza (siempre) o periódicamente cuando se detectan cambios en la API (posiblemente, pero no garantizado), por eso este botón existe para que puedas activar una actualización manual en caso de que BetterRTX entregue sus actualizaciones con retraso o la API parezca no cambiar tras publicar actualizaciones.&#x0a;&#x0a;Nota 2: Este botón no eliminará tu preset RTX predeterminado, que se respalda en tu primer intento de instalar un preset. Solo las actualizaciones del juego pueden provocar un restablecimiento del preset predeterminado, para que la aplicación pueda tomar los nuevos valores predeterminados directamente de la nueva actualización de tu juego.</value></data>
+
+  <data name="WindowTitle_Release" xml:space="preserve"><value>Administrador de presets de BetterRTX - Minecraft Release</value></data>
+
+  <data name="Disclaimer_Title" xml:space="preserve"><value>Aviso de uso de API de terceros</value></data>
+  <data name="Disclaimer_Body" xml:space="preserve"><value>BetterRTX es una modificación no oficial del código de shaders de Minecraft RTX. Los archivos de esta función son proporcionados por el siguiente tercero: https://bedrock.graphics/api
+BetterRTX también puede romperse con las actualizaciones de Minecraft. Vanilla RTX App toma medidas extensas para mitigar cualquier problema que pueda surgir, como ofrecer una forma rápida de revertir a tus valores predeterminados.
+
+Presta atención a los paneles informativos para mantenerte al día y evitar posibles problemas.</value></data>
+  <data name="Disclaimer_ConfirmButton" xml:space="preserve"><value>Entiendo los riesgos y deseo continuar</value></data>
+  <data name="Disclaimer_DismissButton" xml:space="preserve"><value>Descartar</value></data>
+
+  <data name="Status_PreviewNotSupported" xml:space="preserve"><value>El administrador de presets de BetterRTX no es compatible con Minecraft Preview; la API solo proporciona archivos pensados para versiones estables de Minecraft que podrían no funcionar en la última versión de Preview.</value></data>
+  <data name="Status_InitializationError" xml:space="preserve"><value>Error de inicialización: {0}</value></data>
+  <data name="Status_NoValidInstallationSelected" xml:space="preserve"><value>No se seleccionó una instalación válida de Minecraft</value></data>
+  <data name="Status_MaterialsFolderNotFound" xml:space="preserve"><value>No se encontró la carpeta de materiales en la instalación de Minecraft</value></data>
+  <data name="Status_CouldNotEstablishCacheFolder" xml:space="preserve"><value>No se pudo crear la carpeta de caché</value></data>
+  <data name="Status_DisclaimerDismissed" xml:space="preserve"><value>Se descartó el aviso de uso de API de terceros. Debes comprender los riesgos antes de poder usar esta función.
+Si deseas cambiar el aspecto de RTX sin BetterRTX, prueba "RTX LUT manager" en su lugar.</value></data>
+  <data name="Status_InstalledSuccessfully" xml:space="preserve"><value>{0} se instaló correctamente</value></data>
+
+  <data name="EmptyState_CacheCorrupted" xml:space="preserve"><value>No hay presets disponibles. La lista de presets podría estar dañada; intenta hacer clic en el botón Actualizar en la esquina superior izquierda.</value></data>
+  <data name="EmptyState_Offline" xml:space="preserve"><value>No hay presets disponibles. Se requiere una conexión a internet para obtener la información de los presets de BetterRTX.
+Aún puedes importar e instalar presets personalizados (.rtpack) incluso sin conexión a internet.</value></data>
+  <data name="EmptyState_ParsingIssue" xml:space="preserve"><value>No se pudieron mostrar los presets de BetterRTX. Intenta hacer clic en el botón Actualizar en la esquina superior izquierda.</value></data>
+
+  <data name="Preset_DefaultRtxName" xml:space="preserve"><value>RTX predeterminado</value></data>
+  <data name="Preset_ClickToRollback" xml:space="preserve"><value>Haz clic para revertir</value></data>
+  <data name="Preset_ClickToRollback_Explainer" xml:space="preserve"><value>: este preset se creó automáticamente a partir de los archivos más recientes de tu juego en tu primer intento de instalar un preset de BetterRTX</value></data>
+  <data name="Preset_ClickToInstall" xml:space="preserve"><value>Haz clic para instalar</value></data>
+  <data name="Preset_StatusQueued" xml:space="preserve"><value>En cola</value></data>
+  <data name="Preset_StatusDownloading" xml:space="preserve"><value>Descarga en curso...</value></data>
+  <data name="Preset_ClickToDownload" xml:space="preserve"><value>Haz clic para descargar</value></data>
+  <data name="Preset_CurrentlyInstalledSuffix" xml:space="preserve"><value> (Instalado actualmente)</value></data>
+
+  <data name="AddPreset_Title" xml:space="preserve"><value>Agregar preset personalizado (.rtpack)</value></data>
+  <data name="AddPreset_Description" xml:space="preserve"><value>Arrastra y suelta o busca los archivos de preset .rtpack exportados desde el sitio web de BetterRTX</value></data>
+  <data name="AddPreset_CreateYourOwnLink" xml:space="preserve"><value>Crea tu propio preset de BetterRTX</value></data>
+  <data name="AddPreset_DragCaption" xml:space="preserve"><value>Agregar como preset(s) de BetterRTX</value></data>
+</root>
