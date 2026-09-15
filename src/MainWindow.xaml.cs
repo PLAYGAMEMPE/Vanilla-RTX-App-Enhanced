@@ -409,6 +409,17 @@ public sealed partial class MainWindow : Window
         SetMainWindowProperties();
         InitializeComponent();
 
+        // DesktopAcrylicBackdrop requires compositor support that isn't guaranteed on
+        // every Windows 10/11 build or VM (this is what crashed XAML parsing - via a bare
+        // <Window.SystemBackdrop> in MainWindow.xaml - with a native, unhandled WinRT
+        // exception on machines lacking it, before any window could show). Applying it
+        // here instead, guarded by IsSupported(), keeps the effect where it works and
+        // simply skips it (no backdrop) where it doesn't.
+        if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
+        {
+            SystemBackdrop = new DesktopAcrylicBackdrop();
+        }
+
         InitializeLogTypewriter();
         InitializeLampAnimators();
         SetTitleBar(TitleBarDragArea);

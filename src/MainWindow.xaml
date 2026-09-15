@@ -7,10 +7,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Title="Vanilla RTX App"
         mc:Ignorable="d">
-    
-    <Window.SystemBackdrop>
-        <DesktopAcrylicBackdrop />
-    </Window.SystemBackdrop>
 
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
