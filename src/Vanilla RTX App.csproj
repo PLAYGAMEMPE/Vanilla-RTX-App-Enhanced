@@ -1499,6 +1499,17 @@
     <RepositoryUrl>https://github.com/cubeir/Vanilla-RTX-App</RepositoryUrl>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <AssemblyName>Vanilla RTX App</AssemblyName>
+    <!-- WindowsAppSDK's unpackaged ResourceManager (Core\Loc.cs) resolves the app's .pri
+         file by the CURRENTLY RUNNING .exe's own name, not by this AssemblyName - so
+         renaming the published single .exe (e.g. to the portable release asset name,
+         "Vanilla-RTX-App-Enhanced-Portable-x64.exe") makes it look for a
+         "Vanilla-RTX-App-Enhanced-Portable-x64.pri" that doesn't exist, since the bundled
+         resource index is only ever generated as "Vanilla RTX App.pri" - failing every
+         "ms-appx:///" resource lookup (including MainWindow.xaml itself via
+         Application.LoadComponent) with a XamlParseException, no matter what else is
+         fixed. Forcing a fixed, rename-proof .pri file name here decouples resource
+         resolution from whatever the distributed .exe ends up being named. -->
+    <ProjectPriFileName>resources.pri</ProjectPriFileName>
     <AssemblyOriginatorKeyFile>CubeirSoftware.pfx</AssemblyOriginatorKeyFile>
     <NuGetAuditMode>all</NuGetAuditMode>
     <PlatformTarget>AnyCPU</PlatformTarget>
