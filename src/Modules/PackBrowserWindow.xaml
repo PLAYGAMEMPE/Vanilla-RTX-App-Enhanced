@@ -112,7 +112,6 @@
                               IsTextScaleFactorEnabled="False"
                               Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
                     <TextBlock x:Name="EmptyStateText"
-                               x:Uid="EmptyState_NoPacksInstalled"
                                FontSize="14"
                                IsTextScaleFactorEnabled="False"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
@@ -193,7 +192,7 @@
                                           FontSize="20"
                                           VerticalAlignment="Center"
                                           IsTextScaleFactorEnabled="False" />
-                                <TextBlock x:Uid="ConfirmButton_Text"
+                                <TextBlock x:Name="ConfirmButton_Text"
                                            FontWeight="SemiBold"
                                            FontSize="14"
                                            VerticalAlignment="Center"
@@ -221,7 +220,7 @@
                                               FontSize="20"
                                               VerticalAlignment="Center"
                                               IsTextScaleFactorEnabled="False" />
-                                    <TextBlock x:Uid="AddPackButton_Text"
+                                    <TextBlock x:Name="AddPackButton_Text"
                                                FontWeight="SemiBold"
                                                FontSize="14"
                                                VerticalAlignment="Center"

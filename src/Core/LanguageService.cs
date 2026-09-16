@@ -18,11 +18,14 @@ namespace Vanilla_RTX_App.Core;
 /// </summary>
 public static class LanguageService
 {
+    /// <summary>Persisted sentinel meaning "follow the Windows display language".</summary>
+    public const string SystemLanguageTag = "System";
+
     /// <summary>Language tags this build ships translations for, in menu order.</summary>
     public static readonly (string Tag, string DisplayName)[] SupportedLanguages =
     {
         ("en-US", "English"),
-        ("es-ES", "Espanol"),
+        ("es-ES", "Español"),
     };
 
     /// <summary>Hard fallback when nothing on the user's preferred-languages list matches a shipped translation.</summary>
@@ -59,7 +62,9 @@ public static class LanguageService
     /// </summary>
     public static void ApplyLanguage(string tag)
     {
-        CurrentLanguageTag = tag == "System" ? DetectSystemLanguage() : tag;
+        CurrentLanguageTag = string.Equals(tag, SystemLanguageTag, StringComparison.OrdinalIgnoreCase)
+            ? DetectSystemLanguage()
+            : tag;
 
         if (PackageContext.IsPackaged)
         {
@@ -99,7 +104,23 @@ public static class LanguageService
         return FallbackTag;
     }
 
-    /// <summary>Reads the persisted language choice ("System" if never set).</summary>
-    public static string ResolveSavedLanguage() =>
-        string.IsNullOrEmpty(EnvironmentVariables.Persistent.AppLanguage) ? "System" : EnvironmentVariables.Persistent.AppLanguage;
+    /// <summary>
+    /// Reads the persisted choice. Missing, malformed, and legacy unknown values all
+    /// intentionally return to automatic Windows-language detection rather than
+    /// pinning a new installation to English.
+    /// </summary>
+    public static string ResolveSavedLanguage()
+    {
+        var saved = EnvironmentVariables.Persistent.AppLanguage;
+        if (string.IsNullOrWhiteSpace(saved)
+            || string.Equals(saved, SystemLanguageTag, StringComparison.OrdinalIgnoreCase))
+        {
+            return SystemLanguageTag;
+        }
+
+        return SupportedLanguages.Any(language =>
+            string.Equals(language.Tag, saved, StringComparison.OrdinalIgnoreCase))
+            ? saved
+            : SystemLanguageTag;
+    }
 }

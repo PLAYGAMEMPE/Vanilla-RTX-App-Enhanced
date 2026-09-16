@@ -21,22 +21,24 @@
   <data name="Panel_AvailableLabel2.Text" xml:space="preserve"><value>Disponible:</value></data>
   <data name="Panel_AvailableLabel3.Text" xml:space="preserve"><value>Disponible:</value></data>
 
-  <data name="Panel_NotInstalledText.Text" xml:space="preserve"><value>No instalado</value></data>
-  <data name="Panel_NotInstalledText2.Text" xml:space="preserve"><value>No instalado</value></data>
-  <data name="Panel_NotInstalledText3.Text" xml:space="preserve"><value>No instalado</value></data>
+  <data name="VanillaRTXNormals_InstalledVersion.Text" xml:space="preserve"><value>No instalado</value></data>
+  <data name="VanillaRTX_InstalledVersion.Text" xml:space="preserve"><value>No instalado</value></data>
+  <data name="VanillaRTXOpus_InstalledVersion.Text" xml:space="preserve"><value>No instalado</value></data>
 
-  <data name="Panel_CheckingText.Text" xml:space="preserve"><value>Comprobando...</value></data>
-  <data name="Panel_CheckingText2.Text" xml:space="preserve"><value>Comprobando...</value></data>
-  <data name="Panel_CheckingText3.Text" xml:space="preserve"><value>Comprobando...</value></data>
+  <data name="VanillaRTXNormals_AvailableVersion.Text" xml:space="preserve"><value>Comprobando...</value></data>
+  <data name="VanillaRTX_AvailableVersion.Text" xml:space="preserve"><value>Comprobando...</value></data>
+  <data name="VanillaRTXOpus_AvailableVersion.Text" xml:space="preserve"><value>Comprobando...</value></data>
 
-  <data name="Panel_EnhancementsToggle.Header" xml:space="preserve"><value>Mejoras</value></data>
-  <data name="Panel_EnhancementsToggle2.Header" xml:space="preserve"><value>Mejoras</value></data>
-  <data name="Panel_EnhancementsToggle3.Header" xml:space="preserve"><value>Mejoras</value></data>
+  <data name="VanillaRTXNormals_EnhancementsToggle.Header" xml:space="preserve"><value>Mejoras</value></data>
+  <data name="VanillaRTX_EnhancementsToggle.Header" xml:space="preserve"><value>Mejoras</value></data>
+  <data name="VanillaRTXOpus_EnhancementsToggle.Header" xml:space="preserve"><value>Mejoras</value></data>
   <data name="Panel_EnhancementsToggle_ToolTip" xml:space="preserve"><value>Habilita la implementación de mejoras para este paquete de recursos. Esto corrige numerosos errores de renderizado e incompatibilidades de elementos y recursos originales del juego con el trazado de rayos, y mejora otros recursos como las partículas para el trazado de rayos. Para más detalles, busca la siguiente URL: https://minecraftrtx.net/enhancements - Generalmente se recomienda mantener esta opción activada, a menos que cause problemas con otro complemento o paquete de recursos que estés usando.</value></data>
 
-  <data name="Panel_InstallButton.Content" xml:space="preserve"><value>Instalar</value></data>
-  <data name="Panel_InstallButton2.Content" xml:space="preserve"><value>Instalar</value></data>
-  <data name="Panel_InstallButton3.Content" xml:space="preserve"><value>Instalar</value></data>
+  <data name="VanillaRTXNormals_InstallButton.Content" xml:space="preserve"><value>Instalar</value></data>
+  <data name="VanillaRTX_InstallButton.Content" xml:space="preserve"><value>Instalar</value></data>
+  <data name="VanillaRTXOpus_InstallButton.Content" xml:space="preserve"><value>Instalar</value></data>
+  <data name="Panel_NotInstalledText" xml:space="preserve"><value>No instalado</value></data>
+  <data name="Panel_InstallButton" xml:space="preserve"><value>Instalar</value></data>
   <data name="Panel_UpdateButton" xml:space="preserve"><value>Actualizar</value></data>
   <data name="Panel_ReinstallButton" xml:space="preserve"><value>Reinstalar</value></data>
 

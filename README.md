@@ -45,6 +45,12 @@ Antes de distribuir una versión, ejecuta:
 pwsh -File .\scripts\test-portable.ps1
 ```
 
+También valida el cambio de idioma y el reinicio desde un perfil de datos aislado:
+
+```powershell
+pwsh -File .\scripts\test-language-restart.ps1
+```
+
 La prueba copia y renombra el archivo, lo inicia desde `C:\Windows\Temp` con un `PATH` reducido, valida que WinUI, .NET y el runtime VC++ se carguen desde la extracción interna del ejecutable, y comprueba un cierre normal.
 
 Requisitos reales del usuario final:

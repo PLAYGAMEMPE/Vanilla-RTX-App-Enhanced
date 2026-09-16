@@ -21,22 +21,24 @@
   <data name="Panel_AvailableLabel2.Text" xml:space="preserve"><value>Available:</value></data>
   <data name="Panel_AvailableLabel3.Text" xml:space="preserve"><value>Available:</value></data>
 
-  <data name="Panel_NotInstalledText.Text" xml:space="preserve"><value>Not installed</value></data>
-  <data name="Panel_NotInstalledText2.Text" xml:space="preserve"><value>Not installed</value></data>
-  <data name="Panel_NotInstalledText3.Text" xml:space="preserve"><value>Not installed</value></data>
+  <data name="VanillaRTXNormals_InstalledVersion.Text" xml:space="preserve"><value>Not installed</value></data>
+  <data name="VanillaRTX_InstalledVersion.Text" xml:space="preserve"><value>Not installed</value></data>
+  <data name="VanillaRTXOpus_InstalledVersion.Text" xml:space="preserve"><value>Not installed</value></data>
 
-  <data name="Panel_CheckingText.Text" xml:space="preserve"><value>Checking...</value></data>
-  <data name="Panel_CheckingText2.Text" xml:space="preserve"><value>Checking...</value></data>
-  <data name="Panel_CheckingText3.Text" xml:space="preserve"><value>Checking...</value></data>
+  <data name="VanillaRTXNormals_AvailableVersion.Text" xml:space="preserve"><value>Checking...</value></data>
+  <data name="VanillaRTX_AvailableVersion.Text" xml:space="preserve"><value>Checking...</value></data>
+  <data name="VanillaRTXOpus_AvailableVersion.Text" xml:space="preserve"><value>Checking...</value></data>
 
-  <data name="Panel_EnhancementsToggle.Header" xml:space="preserve"><value>Enhancements</value></data>
-  <data name="Panel_EnhancementsToggle2.Header" xml:space="preserve"><value>Enhancements</value></data>
-  <data name="Panel_EnhancementsToggle3.Header" xml:space="preserve"><value>Enhancements</value></data>
+  <data name="VanillaRTXNormals_EnhancementsToggle.Header" xml:space="preserve"><value>Enhancements</value></data>
+  <data name="VanillaRTX_EnhancementsToggle.Header" xml:space="preserve"><value>Enhancements</value></data>
+  <data name="VanillaRTXOpus_EnhancementsToggle.Header" xml:space="preserve"><value>Enhancements</value></data>
   <data name="Panel_EnhancementsToggle_ToolTip" xml:space="preserve"><value>Enables deployment of enhancements for this resource pack. This fixes numerous rendering errors/incompatibilities of vanilla features and resources with ray tracing and enhances various other resources such as particles for ray tracing. For more details, search the following URL: https://minecraftrtx.net/enhancements - It is generally recommended that you keep this enabled, unless it causes issues with another add-on or resource pack you're using.</value></data>
 
-  <data name="Panel_InstallButton.Content" xml:space="preserve"><value>Install</value></data>
-  <data name="Panel_InstallButton2.Content" xml:space="preserve"><value>Install</value></data>
-  <data name="Panel_InstallButton3.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="VanillaRTXNormals_InstallButton.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="VanillaRTX_InstallButton.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="VanillaRTXOpus_InstallButton.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="Panel_NotInstalledText" xml:space="preserve"><value>Not installed</value></data>
+  <data name="Panel_InstallButton" xml:space="preserve"><value>Install</value></data>
   <data name="Panel_UpdateButton" xml:space="preserve"><value>Update</value></data>
   <data name="Panel_ReinstallButton" xml:space="preserve"><value>Reinstall</value></data>
 

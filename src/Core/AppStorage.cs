@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -31,8 +32,7 @@ public static partial class AppStorage
 {
     private const string AppFolderName = "Vanilla RTX App";
 
-    private static readonly string RootFolder = EnsureDir(Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppFolderName));
+    private static readonly string RootFolder = ResolveRootFolder();
 
     /// <summary>Equivalent of ApplicationData.Current.LocalFolder.Path.</summary>
     public static string LocalFolderPath { get; } = EnsureDir(Path.Combine(RootFolder, "LocalState"));
@@ -47,6 +47,27 @@ public static partial class AppStorage
     {
         Directory.CreateDirectory(path);
         return path;
+    }
+
+    private static string ResolveRootFolder()
+    {
+        // Test runners can isolate persisted state without modifying a user's real profile.
+        // Normal launches never set this and continue using %LocalAppData% as before.
+        var overridePath = Environment.GetEnvironmentVariable("VANILLA_RTX_APP_STORAGE_ROOT");
+        if (!string.IsNullOrWhiteSpace(overridePath))
+        {
+            try
+            {
+                return EnsureDir(Path.GetFullPath(overridePath));
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"[AppStorage] Ignoring invalid storage override: {ex.Message}");
+            }
+        }
+
+        return EnsureDir(Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppFolderName));
     }
 
     private static readonly string SettingsFilePath = Path.Combine(RootFolder, "settings.json");
@@ -81,7 +102,7 @@ public static partial class AppStorage
         }
     }
 
-    private static void Persist()
+    private static bool Persist(out string? error)
     {
         lock (Gate)
         {
@@ -90,13 +111,24 @@ public static partial class AppStorage
                 var tagged = new Dictionary<string, TaggedValue>();
                 foreach (var pair in _cache!)
                     tagged[pair.Key] = TaggedValue.FromNative(pair.Value);
-                File.WriteAllText(
-                    SettingsFilePath,
-                    JsonSerializer.Serialize(tagged, SettingsJsonContext.Default.DictionaryStringTaggedValue));
+                var json = JsonSerializer.Serialize(
+                    tagged,
+                    SettingsJsonContext.Default.DictionaryStringTaggedValue);
+
+                // Replace from the same directory so a crash or power loss while writing
+                // cannot leave the only settings file partially written.
+                var temporaryPath = SettingsFilePath + ".tmp";
+                File.WriteAllText(temporaryPath, json);
+                File.Move(temporaryPath, SettingsFilePath, true);
+
+                error = null;
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
-                // Best-effort persistence - a failed write shouldn't crash the app.
+                error = $"{ex.GetType().Name}: {ex.Message}";
+                Trace.WriteLine($"[AppStorage] Could not persist settings: {error}");
+                return false;
             }
         }
     }
@@ -116,7 +148,32 @@ public static partial class AppStorage
         public object? this[string key]
         {
             get { lock (Gate) return Store().TryGetValue(key, out var v) ? v : null; }
-            set { lock (Gate) Store()[key] = value; Persist(); }
+            set { _ = TrySet(key, value, out _); }
+        }
+
+        /// <summary>
+        /// Stores one value and confirms that it reached disk. If persistence fails,
+        /// the in-memory cache is rolled back so callers never mistake an ephemeral
+        /// change for a saved preference.
+        /// </summary>
+        public bool TrySet(string key, object? value, out string? error)
+        {
+            lock (Gate)
+            {
+                var store = Store();
+                var hadPreviousValue = store.TryGetValue(key, out var previousValue);
+                store[key] = value;
+
+                if (Persist(out error))
+                    return true;
+
+                if (hadPreviousValue)
+                    store[key] = previousValue;
+                else
+                    store.Remove(key);
+
+                return false;
+            }
         }
 
         public bool ContainsKey(string key)
@@ -126,10 +183,19 @@ public static partial class AppStorage
 
         public bool Remove(string key)
         {
-            bool removed;
-            lock (Gate) removed = Store().Remove(key);
-            if (removed) Persist();
-            return removed;
+            lock (Gate)
+            {
+                var store = Store();
+                if (!store.TryGetValue(key, out var previousValue))
+                    return false;
+
+                store.Remove(key);
+                if (Persist(out _))
+                    return true;
+
+                store[key] = previousValue;
+                return false;
+            }
         }
 
         public IReadOnlyCollection<string> Keys
@@ -140,8 +206,18 @@ public static partial class AppStorage
         /// <summary>Wipes every stored key. Used by the app's "hard reset" feature.</summary>
         public void Clear()
         {
-            lock (Gate) Store().Clear();
-            Persist();
+            lock (Gate)
+            {
+                var store = Store();
+                var previousValues = new Dictionary<string, object?>(store);
+                store.Clear();
+
+                if (!Persist(out _))
+                {
+                    foreach (var pair in previousValues)
+                        store[pair.Key] = pair.Value;
+                }
+            }
         }
     }
 
@@ -152,7 +228,14 @@ public static partial class AppStorage
 
         public static TaggedValue FromNative(object? value) => value switch
         {
-            null => new TaggedValue { T = null },
+            // A default(JsonElement) has ValueKind.Undefined and throws when
+            // System.Text.Json tries to write it. Persisted optional settings are
+            // frequently null, so encode an actual JSON null element instead.
+            null => new TaggedValue
+            {
+                T = null,
+                V = JsonSerializer.SerializeToElement((string?)null, SettingsJsonContext.Default.String)
+            },
             bool b => new TaggedValue { T = "bool", V = JsonSerializer.SerializeToElement(b, SettingsJsonContext.Default.Boolean) },
             int i => new TaggedValue { T = "int", V = JsonSerializer.SerializeToElement(i, SettingsJsonContext.Default.Int32) },
             long l => new TaggedValue { T = "long", V = JsonSerializer.SerializeToElement(l, SettingsJsonContext.Default.Int64) },

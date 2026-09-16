@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = "1"
 
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
-$projectPath = Join-Path $repoRoot "src\Vanilla RTX App.csproj"
+$sourceProjectPath = Join-Path $repoRoot "src\Vanilla RTX App.csproj"
 $artifactRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot "artifacts"))
 
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
@@ -58,38 +58,91 @@ if ($sdkVersion.Major -ne 10) {
     throw ".NET SDK 10 is required to build this net10.0 application; found $sdkVersionText."
 }
 
+if (-not (Test-Path -LiteralPath $sourceProjectPath)) {
+    throw "Project file not found: '$sourceProjectPath'."
+}
+
 if (Test-Path -LiteralPath $outputPath) {
     Remove-Item -LiteralPath $outputPath -Recurse -Force
 }
 New-Item -ItemType Directory -Path $outputPath -Force | Out-Null
 
-Invoke-DotNet @(
-    "clean", $projectPath,
-    "-c", "Release",
-    "-p:Platform=x64",
-    "-p:RuntimeIdentifier=win-x64",
-    "-v:minimal"
-)
+${stagingRoot} = Join-Path ([IO.Path]::GetTempPath()) ("VanillaRTX-Portable-Build-" + [Guid]::NewGuid().ToString("N"))
+$tempPrefix = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
 
-if (-not $NoRestore) {
+try {
+    $robocopyArguments = @(
+        $repoRoot, $stagingRoot,
+        "/E",
+        "/XD", ".git", ".vs", "bin", "obj", "artifacts",
+        "/NFL", "/NDL", "/NJH", "/NJS", "/NP"
+    )
+    & robocopy @robocopyArguments | Out-Null
+    $robocopyExitCode = $LASTEXITCODE
+    if ($robocopyExitCode -ge 8) {
+        throw "robocopy failed while preparing the clean build staging directory (exit code $robocopyExitCode)."
+    }
+
+    $projectPath = Join-Path $stagingRoot "src\Vanilla RTX App.csproj"
+    if (-not (Test-Path -LiteralPath $projectPath)) {
+        throw "The clean build staging directory does not contain '$projectPath'."
+    }
+
+    Invoke-DotNet @(
+        "clean", $projectPath,
+        "-c", "Release",
+        "-p:Platform=x64",
+        "-r", "win-x64",
+        "-v:minimal"
+    )
+
+    if ($NoRestore) {
+        Write-Warning "-NoRestore is ignored for the isolated clean build; restore is required to create its dependency graph."
+    }
+
     Invoke-DotNet @(
         "restore", $projectPath,
         "-r", "win-x64",
         "-p:Platform=x64",
         "-v:minimal"
     )
-}
 
-Invoke-DotNet @(
-    "publish", $projectPath,
-    "-c", "Release",
-    "-p:Platform=x64",
-    "-p:PublishProfile=Portable-x64",
-    "-p:ContinuousIntegrationBuild=true",
-    "-o", $outputPath,
-    "--no-restore",
-    "-v:minimal"
-)
+    $stagingOutputPath = Join-Path $stagingRoot "publish"
+    Invoke-DotNet @(
+        "publish", $projectPath,
+        "-c", "Release",
+        "-p:Platform=x64",
+        "-p:PublishProfile=Portable-x64",
+        "-p:ContinuousIntegrationBuild=true",
+        "-o", $stagingOutputPath,
+        "--no-restore",
+        "-v:minimal"
+    )
+
+    $stagedFiles = @(Get-ChildItem -LiteralPath $stagingOutputPath -File -Recurse)
+    if ($stagedFiles.Count -ne 1 -or $stagedFiles[0].Extension -ne ".exe") {
+        $names = $stagedFiles.FullName -join [Environment]::NewLine
+        throw "Clean staging publish must contain exactly one .exe. Found:$([Environment]::NewLine)$names"
+    }
+
+    Copy-Item -LiteralPath $stagedFiles[0].FullName -Destination (Join-Path $outputPath $stagedFiles[0].Name) -Force
+}
+finally {
+    if (Test-Path -LiteralPath $stagingRoot) {
+        try {
+            $resolvedStagingRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $stagingRoot).Path)
+            if ($resolvedStagingRoot.StartsWith($tempPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+                Remove-Item -LiteralPath $resolvedStagingRoot -Recurse -Force
+            }
+            else {
+                Write-Warning "Not removing unexpected staging path '$resolvedStagingRoot'."
+            }
+        }
+        catch {
+            Write-Warning "Could not remove clean build staging directory '$stagingRoot': $($_.Exception.Message)"
+        }
+    }
+}
 
 $publishedFiles = @(Get-ChildItem -LiteralPath $outputPath -File -Recurse)
 if ($publishedFiles.Count -ne 1 -or $publishedFiles[0].Extension -ne ".exe") {

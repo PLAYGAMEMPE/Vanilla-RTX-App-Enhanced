@@ -20,13 +20,19 @@
     <value>Reiniciar para aplicar el idioma</value>
   </data>
   <data name="Language_RestartBody" xml:space="preserve">
-    <value>Vanilla RTX App necesita reiniciarse para que el nuevo idioma se aplique en todas partes. Tambien puedes hacerlo mas tarde - la eleccion ya quedo guardada.</value>
+    <value>Vanilla RTX App necesita reiniciarse para que el nuevo idioma se aplique en todas partes. También puedes hacerlo más tarde; la elección ya quedó guardada.</value>
   </data>
   <data name="Language_RestartNow" xml:space="preserve">
     <value>Reiniciar ahora</value>
   </data>
   <data name="Language_RestartLater" xml:space="preserve">
-    <value>Mas tarde</value>
+    <value>Más tarde</value>
+  </data>
+  <data name="Language_SaveFailedTitle" xml:space="preserve">
+    <value>No se pudo guardar el idioma</value>
+  </data>
+  <data name="Language_SaveFailedBody" xml:space="preserve">
+    <value>Vanilla RTX App no pudo guardar la preferencia de idioma, por lo que no se aplicaron cambios. Comprueba que la aplicación pueda escribir en tu carpeta local de datos y vuelve a intentarlo.&#x0a;&#x0a;Detalles: {0}</value>
   </data>
 
   <data name="Common_OK" xml:space="preserve">
@@ -36,7 +42,7 @@
     <value>Cancelar</value>
   </data>
   <data name="Common_Yes" xml:space="preserve">
-    <value>Si</value>
+    <value>Sí</value>
   </data>
   <data name="Common_No" xml:space="preserve">
     <value>No</value>

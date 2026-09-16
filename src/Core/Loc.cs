@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Windows.ApplicationModel.Resources;
@@ -37,6 +38,7 @@ namespace Vanilla_RTX_App.Core;
 /// </summary>
 public static class Loc
 {
+    private const string ResourceKeyTagPrefix = "loc:";
     private static readonly ResourceManager _manager = new();
     private static readonly Dictionary<string, ResourceMap?> _maps = new();
 
@@ -148,18 +150,11 @@ public static class Loc
     ///
     /// Keys off FrameworkElement.Name rather than x:Uid itself - unlike classic
     /// UWP, Microsoft.UI.Xaml's FrameworkElement doesn't expose Uid as a readable
-    /// runtime property at all. Every x:Uid in this app's XAML was deliberately set
-    /// to the exact same string as that element's existing x:Name (the convention
-    /// every localization pass here followed), so Name works as an equivalent key
-    /// with no loss of accuracy.
-    ///
-    /// Only re-targets the two property kinds x:Uid is actually used for in this
-    /// app's XAML - TextBlock.Text and simple-string ContentControl.Content
-    /// (buttons/menu items with plain text, not ones with custom icon+text
-    /// panels as Content, which x:Uid was never pointed at to begin with).
-    /// Tooltips and AutomationProperties.Name are set directly from C# elsewhere
-    /// in the codebase already (deliberately, not via x:Uid), so Loc.Get already
-    /// covers them correctly without this walk.
+    /// runtime property. Localized XAML elements therefore either keep x:Name and
+    /// x:Uid aligned, or use AutomationProperties.AutomationId="loc:&lt;x:Uid&gt;"
+    /// when adding x:Name would create an otherwise unnecessary generated field.
+    /// The walk covers every property currently present in the app's dotted .resw
+    /// entries, including attached tooltip/accessibility properties.
     /// </summary>
     public static void ApplyUidOverrides(DependencyObject? root, string resourceMap)
     {
@@ -181,19 +176,52 @@ public static class Loc
 
     private static void Walk(DependencyObject node, string resourceMap)
     {
-        if (node is FrameworkElement fe && !string.IsNullOrEmpty(fe.Name))
+        if (node is FrameworkElement fe)
         {
-            var name = fe.Name;
+            var name = GetResourceKey(fe);
+            if (name != null)
+            {
+                if (fe is TextBlock tb && TryGetUidProperty(name, "Text", resourceMap, out var text))
+                    tb.Text = text;
 
-            if (fe is TextBlock tb && TryGetUidProperty(name, "Text", resourceMap, out var text))
-                tb.Text = text;
-            else if (fe is ContentControl cc && (cc.Content == null || cc.Content is string)
-                     && TryGetUidProperty(name, "Content", resourceMap, out var content))
-                cc.Content = content;
+                if (fe is ContentControl cc && (cc.Content == null || cc.Content is string)
+                    && TryGetUidProperty(name, "Content", resourceMap, out var content))
+                    cc.Content = content;
+
+                if (fe is ToggleSwitch toggle && (toggle.Header == null || toggle.Header is string)
+                    && TryGetUidProperty(name, "Header", resourceMap, out var header))
+                    toggle.Header = header;
+
+                const string toolTipProperty =
+                    "[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip";
+                if (TryGetUidProperty(name, toolTipProperty, resourceMap, out var toolTip))
+                    ToolTipService.SetToolTip(fe, toolTip);
+
+                const string automationNameProperty =
+                    "[using:Windows.UI.Xaml.Automation]AutomationProperties.Name";
+                if (TryGetUidProperty(name, automationNameProperty, resourceMap, out var automationName))
+                    AutomationProperties.SetName(fe, automationName);
+            }
         }
 
         int count = VisualTreeHelper.GetChildrenCount(node);
         for (int i = 0; i < count; i++)
             Walk(VisualTreeHelper.GetChild(node, i), resourceMap);
+    }
+
+    private static string? GetResourceKey(FrameworkElement element)
+    {
+        if (!string.IsNullOrEmpty(element.Name))
+            return element.Name;
+
+        var automationId = AutomationProperties.GetAutomationId(element);
+        if (!string.IsNullOrEmpty(automationId)
+            && automationId.StartsWith(ResourceKeyTagPrefix, StringComparison.Ordinal)
+            && automationId.Length > ResourceKeyTagPrefix.Length)
+        {
+            return automationId[ResourceKeyTagPrefix.Length..];
+        }
+
+        return null;
     }
 }

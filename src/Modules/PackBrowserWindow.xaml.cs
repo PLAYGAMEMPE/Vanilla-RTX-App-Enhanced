@@ -122,6 +122,8 @@ public sealed partial class PackBrowserWindow : Window
             ToolTipService.SetToolTip(SelectAll_Button, Core.Loc.Get("SelectAllButton_ToolTip", "PackBrowser"));
             ToolTipService.SetToolTip(ConfirmButton, Core.Loc.Get("ConfirmButton_ToolTip", "PackBrowser"));
             ToolTipService.SetToolTip(AddPackButton, Core.Loc.Get("AddPackButton_ToolTip", "PackBrowser"));
+            ConfirmButton_Text.Text = Core.Loc.Get("ConfirmButton_Text", "PackBrowser");
+            AddPackButton_Text.Text = Core.Loc.Get("AddPackButton_Text", "PackBrowser");
 
             WindowTitle.Text = Core.Loc.Format("WindowTitle_SelectFromPacks", "PackBrowser", gameTitleText);
             AddPackDescriptionText.Text =

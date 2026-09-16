@@ -31,6 +31,12 @@
   <data name="Language_RestartLater" xml:space="preserve">
     <value>Later</value>
   </data>
+  <data name="Language_SaveFailedTitle" xml:space="preserve">
+    <value>Could not save the language</value>
+  </data>
+  <data name="Language_SaveFailedBody" xml:space="preserve">
+    <value>Vanilla RTX App could not save the language preference, so no changes were applied. Check that the app can write to your local application data folder, then try again.&#x0a;&#x0a;Details: {0}</value>
+  </data>
 
   <!-- Generic dialog buttons reused by several windows -->
   <data name="Common_OK" xml:space="preserve">

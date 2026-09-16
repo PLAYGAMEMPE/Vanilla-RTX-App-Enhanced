@@ -117,7 +117,8 @@
                                                              IsTextScaleFactorEnabled="False" />
 
                                             <!-- Description -->
-                                            <TextBlock x:Uid="NormalsPanel_Description"
+                                            <TextBlock AutomationProperties.AutomationId="loc:NormalsPanel_Description"
+                                                       x:Uid="NormalsPanel_Description"
                                                        Foreground="{ThemeResource OverlayTextBrush}"
                                                        FontSize="13"
                                                        Opacity="0.9"
@@ -134,12 +135,13 @@
                                     <!-- Installed Version -->
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="6">
-                                        <TextBlock x:Uid="Panel_InstalledLabel"
+                                        <TextBlock AutomationProperties.AutomationId="loc:Panel_InstalledLabel"
+                                                   x:Uid="Panel_InstalledLabel"
                                                    FontSize="13"
                                                    Opacity="0.75"
                                                    IsTextScaleFactorEnabled="False" />
                                         <TextBlock x:Name="VanillaRTXNormals_InstalledVersion"
-                                                   x:Uid="Panel_NotInstalledText"
+                                                   x:Uid="VanillaRTXNormals_InstalledVersion"
                                                    FontSize="13"
                                                    FontWeight="SemiBold"
                                                    IsTextScaleFactorEnabled="False" />
@@ -148,7 +150,8 @@
                                     <!-- Available Version -->
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="6">
-                                        <TextBlock x:Uid="Panel_AvailableLabel"
+                                        <TextBlock AutomationProperties.AutomationId="loc:Panel_AvailableLabel"
+                                                   x:Uid="Panel_AvailableLabel"
                                                    FontSize="13"
                                                    Opacity="0.75"
                                                    IsTextScaleFactorEnabled="False" />
@@ -158,7 +161,7 @@
                                                       IsActive="True"
                                                       Visibility="Visible" />
                                         <TextBlock x:Name="VanillaRTXNormals_AvailableVersion"
-                                                   x:Uid="Panel_CheckingText"
+                                                   x:Uid="VanillaRTXNormals_AvailableVersion"
                                                    FontSize="13"
                                                    FontWeight="SemiBold"
                                                    IsTextScaleFactorEnabled="False"
@@ -175,7 +178,7 @@
 
                                         <!-- Enhancement Toggle -->
                                         <ToggleSwitch x:Name="VanillaRTXNormals_EnhancementsToggle"
-                                                      x:Uid="Panel_EnhancementsToggle"
+                                                      x:Uid="VanillaRTXNormals_EnhancementsToggle"
                                                       Grid.Column="0"
                                                       IsOn="True"
                                                       IsTextScaleFactorEnabled="False" />
@@ -186,7 +189,7 @@
                                               MinHeight="60"
                                               Translation="0,0,12">
                                             <Button x:Name="VanillaRTXNormals_InstallButton"
-                                                    x:Uid="Panel_InstallButton"
+                                                    x:Uid="VanillaRTXNormals_InstallButton"
                                                     FontWeight="SemiBold"
                                                     Style="{ThemeResource AccentButtonStyle}"
                                                     HorizontalAlignment="Stretch"
@@ -256,7 +259,8 @@
                                                              IsTextScaleFactorEnabled="False" />
 
                                             <!-- Description -->
-                                            <TextBlock x:Uid="VanillaPanel_Description"
+                                            <TextBlock AutomationProperties.AutomationId="loc:VanillaPanel_Description"
+                                                       x:Uid="VanillaPanel_Description"
                                                        FontSize="13"
                                                        Foreground="{ThemeResource OverlayTextBrush}"
                                                        Opacity="0.9"
@@ -273,12 +277,13 @@
                                     <!-- Installed Version -->
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="6">
-                                        <TextBlock x:Uid="Panel_InstalledLabel2"
+                                        <TextBlock AutomationProperties.AutomationId="loc:Panel_InstalledLabel2"
+                                                   x:Uid="Panel_InstalledLabel2"
                                                    FontSize="13"
                                                    Opacity="0.75"
                                                    IsTextScaleFactorEnabled="False" />
                                         <TextBlock x:Name="VanillaRTX_InstalledVersion"
-                                                   x:Uid="Panel_NotInstalledText2"
+                                                   x:Uid="VanillaRTX_InstalledVersion"
                                                    FontSize="13"
                                                    FontWeight="SemiBold"
                                                    IsTextScaleFactorEnabled="False" />
@@ -287,7 +292,8 @@
                                     <!-- Available Version -->
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="6">
-                                        <TextBlock x:Uid="Panel_AvailableLabel2"
+                                        <TextBlock AutomationProperties.AutomationId="loc:Panel_AvailableLabel2"
+                                                   x:Uid="Panel_AvailableLabel2"
                                                    FontSize="13"
                                                    Opacity="0.75"
                                                    IsTextScaleFactorEnabled="False" />
@@ -297,7 +303,7 @@
                                                       IsActive="True"
                                                       Visibility="Visible" />
                                         <TextBlock x:Name="VanillaRTX_AvailableVersion"
-                                                   x:Uid="Panel_CheckingText2"
+                                                   x:Uid="VanillaRTX_AvailableVersion"
                                                    FontSize="13"
                                                    FontWeight="SemiBold"
                                                    IsTextScaleFactorEnabled="False"
@@ -314,7 +320,7 @@
 
                                         <!-- Enhancement Toggle -->
                                         <ToggleSwitch x:Name="VanillaRTX_EnhancementsToggle"
-                                                      x:Uid="Panel_EnhancementsToggle2"
+                                                      x:Uid="VanillaRTX_EnhancementsToggle"
                                                       Grid.Column="0"
                                                       IsOn="True"
                                                       IsTextScaleFactorEnabled="False" />
@@ -325,7 +331,7 @@
                                               MinHeight="60"
                                               Translation="0,0,12">
                                             <Button x:Name="VanillaRTX_InstallButton"
-                                                    x:Uid="Panel_InstallButton2"
+                                                    x:Uid="VanillaRTX_InstallButton"
                                                     FontWeight="SemiBold"
                                                     Style="{ThemeResource AccentButtonStyle}"
                                                     HorizontalAlignment="Stretch"
@@ -395,7 +401,8 @@
                                                              IsTextScaleFactorEnabled="False" />
 
                                             <!-- Description -->
-                                            <TextBlock x:Uid="OpusPanel_Description"
+                                            <TextBlock AutomationProperties.AutomationId="loc:OpusPanel_Description"
+                                                       x:Uid="OpusPanel_Description"
                                                        FontSize="13"
                                                        Foreground="{ThemeResource OverlayTextBrush}"
                                                        Opacity="0.9"
@@ -412,12 +419,13 @@
                                     <!-- Installed Version -->
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="6">
-                                        <TextBlock x:Uid="Panel_InstalledLabel3"
+                                        <TextBlock AutomationProperties.AutomationId="loc:Panel_InstalledLabel3"
+                                                   x:Uid="Panel_InstalledLabel3"
                                                    FontSize="13"
                                                    Opacity="0.75"
                                                    IsTextScaleFactorEnabled="False" />
                                         <TextBlock x:Name="VanillaRTXOpus_InstalledVersion"
-                                                   x:Uid="Panel_NotInstalledText3"
+                                                   x:Uid="VanillaRTXOpus_InstalledVersion"
                                                    FontSize="13"
                                                    FontWeight="SemiBold"
                                                    IsTextScaleFactorEnabled="False" />
@@ -426,7 +434,8 @@
                                     <!-- Available Version -->
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="6">
-                                        <TextBlock x:Uid="Panel_AvailableLabel3"
+                                        <TextBlock AutomationProperties.AutomationId="loc:Panel_AvailableLabel3"
+                                                   x:Uid="Panel_AvailableLabel3"
                                                    FontSize="13"
                                                    Opacity="0.75"
                                                    IsTextScaleFactorEnabled="False" />
@@ -436,7 +445,7 @@
                                                       IsActive="True"
                                                       Visibility="Visible" />
                                         <TextBlock x:Name="VanillaRTXOpus_AvailableVersion"
-                                                   x:Uid="Panel_CheckingText3"
+                                                   x:Uid="VanillaRTXOpus_AvailableVersion"
                                                    FontSize="13"
                                                    FontWeight="SemiBold"
                                                    IsTextScaleFactorEnabled="False"
@@ -453,7 +462,7 @@
 
                                         <!-- Enhancement Toggle -->
                                         <ToggleSwitch x:Name="VanillaRTXOpus_EnhancementsToggle"
-                                                      x:Uid="Panel_EnhancementsToggle3"
+                                                      x:Uid="VanillaRTXOpus_EnhancementsToggle"
                                                       Grid.Column="0"
                                                       IsOn="True"
                                                       IsTextScaleFactorEnabled="False" />
@@ -464,7 +473,7 @@
                                               MinHeight="60"
                                               Translation="0,0,12">
                                             <Button x:Name="VanillaRTXOpus_InstallButton"
-                                                    x:Uid="Panel_InstallButton3"
+                                                    x:Uid="VanillaRTXOpus_InstallButton"
                                                     FontWeight="SemiBold"
                                                     Style="{ThemeResource AccentButtonStyle}"
                                                     HorizontalAlignment="Stretch"
@@ -505,18 +514,21 @@
                                         Padding="16"
                                         Spacing="10"
                                         VerticalAlignment="Center">
-                                <TextBlock x:Uid="SpecialOccasion_Title"
+                                <TextBlock AutomationProperties.AutomationId="loc:SpecialOccasion_Title"
+                                           x:Uid="SpecialOccasion_Title"
                                            FontSize="20"
                                            FontWeight="SemiBold"
                                            HorizontalAlignment="Center"
                                            IsTextScaleFactorEnabled="False" />
-                                <TextBlock x:Uid="SpecialOccasion_Body"
+                                <TextBlock AutomationProperties.AutomationId="loc:SpecialOccasion_Body"
+                                           x:Uid="SpecialOccasion_Body"
                                            FontSize="13"
                                            Opacity="0.9"
                                            TextWrapping="Wrap"
                                            IsTextScaleFactorEnabled="False" />
                                 <!-- Download Button -->
-                                <HyperlinkButton x:Uid="SpecialOccasion_DownloadButton"
+                                <HyperlinkButton AutomationProperties.AutomationId="loc:SpecialOccasion_DownloadButton"
+                                                 x:Uid="SpecialOccasion_DownloadButton"
                                                  FontSize="18"
                                                  FontWeight="SemiBold"
                                                  HorizontalAlignment="Center"
@@ -556,7 +568,8 @@
                                                          HorizontalAlignment="Left"
                                                          NavigateUri="http://mcpedl.com/vanilla-rtx-everwinter"
                                                          IsTextScaleFactorEnabled="False" />
-                                        <TextBlock x:Uid="SpecialOccasion_OverlayDescription"
+                                        <TextBlock AutomationProperties.AutomationId="loc:SpecialOccasion_OverlayDescription"
+                                                   x:Uid="SpecialOccasion_OverlayDescription"
                                                    FontSize="14"
                                                    Foreground="{ThemeResource OverlayTextBrush}"
                                                    Opacity="0.9"
@@ -629,7 +642,8 @@
                                                          NavigateUri="https://curseforge.com/minecraft-bedrock/texture-packs/vanilla-rtx-add-ons"
                                                          IsTextScaleFactorEnabled="False" />
 
-                                        <TextBlock x:Uid="AddOnsPanel_Description"
+                                        <TextBlock AutomationProperties.AutomationId="loc:AddOnsPanel_Description"
+                                                   x:Uid="AddOnsPanel_Description"
                                                    FontSize="13"
                                                    Foreground="{ThemeResource OverlayTextBrush}"
                                                    Opacity="0.9"
@@ -684,7 +698,8 @@
                                                          NavigateUri="https://www.curseforge.com/minecraft-bedrock/texture-packs/chemistry-rtx"
                                                          IsTextScaleFactorEnabled="False" />
 
-                                        <TextBlock x:Uid="ChemistryPanel_Description"
+                                        <TextBlock AutomationProperties.AutomationId="loc:ChemistryPanel_Description"
+                                                   x:Uid="ChemistryPanel_Description"
                                                    FontSize="13"
                                                    Foreground="{ThemeResource OverlayTextBrush}"
                                                    Opacity="0.9"
@@ -738,7 +753,8 @@
                                                          NavigateUri="https://www.curseforge.com/minecraft-bedrock/texture-packs/creative-rtx"
                                                          IsTextScaleFactorEnabled="False" />
 
-                                        <TextBlock x:Uid="CreativePanel_Description"
+                                        <TextBlock AutomationProperties.AutomationId="loc:CreativePanel_Description"
+                                                   x:Uid="CreativePanel_Description"
                                                    FontSize="13"
                                                    Foreground="{ThemeResource OverlayTextBrush}"
                                                    Opacity="0.9"
@@ -775,7 +791,8 @@
                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
 
                             <!-- Info Text -->
-                            <TextBlock Grid.Column="1"
+                            <TextBlock AutomationProperties.AutomationId="loc:StaticInfo_Text"
+                                       Grid.Column="1"
                                        x:Uid="StaticInfo_Text"
                                        TextWrapping="Wrap"
                                        FontSize="13"

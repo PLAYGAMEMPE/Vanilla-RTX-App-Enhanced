@@ -196,6 +196,33 @@ public partial class App : Application
     public static string GetUniqueName() =>
         Core.PackageContext.IsPackaged ? "vanilla_rtx_app_packaged" : "vanilla_rtx_app_portable";
 
+    /// <summary>
+    /// Releases the single-instance mutex before a replacement process starts.
+    /// AppInstance.Restart launches the new process while this one is still alive;
+    /// keeping the mutex until process teardown makes that replacement identify as
+    /// a duplicate and exit before it can show a window.
+    /// </summary>
+    internal static void ReleaseSingleInstanceLockForRestart()
+    {
+        var mutex = _mutex;
+        _mutex = null;
+        if (mutex == null)
+            return;
+
+        try
+        {
+            mutex.ReleaseMutex();
+        }
+        catch (ApplicationException)
+        {
+            // The process can still be relaunched if ownership was already released.
+        }
+        finally
+        {
+            mutex.Dispose();
+        }
+    }
+
     public static Windows.ApplicationModel.PackageVersion GetPackageVersion()
     {
         try

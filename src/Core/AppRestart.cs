@@ -18,6 +18,11 @@ public static class AppRestart
 {
     public static Task RestartApp()
     {
+        // A restart creates the replacement before terminating this process. Let it
+        // acquire the app's single-instance mutex instead of rejecting it as a
+        // duplicate and waiting for a later retry.
+        App.ReleaseSingleInstanceLockForRestart();
+
         try
         {
             // If this actually succeeds, the process is replaced and this line never

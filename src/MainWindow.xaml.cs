@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
@@ -83,7 +84,7 @@ public static class EnvironmentVariables
         public static bool SuspendUIAnimations = false;
 
         // "System" (follow Windows), or one of LanguageService.SupportedLanguages' Tag values (e.g. "es-ES").
-        public static string AppLanguage = "System";
+        public static string AppLanguage = Core.LanguageService.SystemLanguageTag;
     }
 
     public static class Defaults // These are backed up to be used as a compass by other classes
@@ -408,6 +409,7 @@ public sealed partial class MainWindow : Window
         // Set Window-level properties before initializing
         SetMainWindowProperties();
         InitializeComponent();
+        InitializeLanguageFlyout();
 
         // DesktopAcrylicBackdrop requires compositor support that isn't guaranteed on
         // every Windows 10/11 build or VM (this is what crashed XAML parsing - via a bare
@@ -510,9 +512,6 @@ public sealed partial class MainWindow : Window
 
             // APPLY THEME, passing nulls means it isn't a button, instead of cycling, it applies the loaded setting
             CycleThemeButton_Click(null, null);
-
-            PopulateLanguageFlyout();
-            LanguageFlyout.Opening += (_, _) => PopulateLanguageFlyout(); // keeps the checkmark correct if the choice changed but a restart was deferred
 
             ToolTipService.SetToolTip(RestoreOriginalButton, Core.Loc.Get("RestoreOriginal_ToolTip", "MainWindow"));
 
@@ -1362,33 +1361,45 @@ public sealed partial class MainWindow : Window
     }
 
 
-    // Builds the language flyout's items (English, Espanol, ... + "System default"),
-    // with a checkmark on whichever one is currently active. Rebuilt each time the
-    // flyout opens so the checkmark always matches Persistent.AppLanguage even if
-    // it changed elsewhere (there's no "elsewhere" today, but costs nothing).
-    private void PopulateLanguageFlyout()
+    // Build once: changing MenuFlyout.Items from its Opening event can cancel the
+    // same opening gesture, which made the title-bar language button feel unreliable.
+    private void InitializeLanguageFlyout()
     {
         LanguageFlyout.Items.Clear();
 
-        var systemItem = new ToggleMenuFlyoutItem
-        {
-            Text = Core.Loc.Get("Language_System"),
-            IsChecked = Persistent.AppLanguage == "System"
-        };
-        systemItem.Click += (_, _) => OnLanguageSelected("System");
-        LanguageFlyout.Items.Add(systemItem);
+        AddLanguageFlyoutItem(Core.LanguageService.SystemLanguageTag, Core.Loc.Get("Language_System"));
 
         LanguageFlyout.Items.Add(new MenuFlyoutSeparator());
 
         foreach (var (tag, displayName) in Core.LanguageService.SupportedLanguages)
+            AddLanguageFlyoutItem(tag, displayName);
+
+        UpdateLanguageFlyoutSelection();
+    }
+
+    private void AddLanguageFlyoutItem(string tag, string text)
+    {
+        var item = new ToggleMenuFlyoutItem
         {
-            var item = new ToggleMenuFlyoutItem
+            Text = text,
+            Tag = tag
+        };
+        AutomationProperties.SetAutomationId(item, $"Language-{tag}");
+        item.Click += (_, _) => OnLanguageSelected(tag);
+        LanguageFlyout.Items.Add(item);
+    }
+
+    private void UpdateLanguageFlyoutSelection()
+    {
+        foreach (var flyoutItem in LanguageFlyout.Items)
+        {
+            if (flyoutItem is ToggleMenuFlyoutItem item && item.Tag is string tag)
             {
-                Text = displayName,
-                IsChecked = Persistent.AppLanguage == tag
-            };
-            item.Click += (_, _) => OnLanguageSelected(tag);
-            LanguageFlyout.Items.Add(item);
+                item.IsChecked = string.Equals(
+                    Persistent.AppLanguage,
+                    tag,
+                    StringComparison.OrdinalIgnoreCase);
+            }
         }
     }
 
@@ -1396,8 +1407,27 @@ public sealed partial class MainWindow : Window
     {
         if (Persistent.AppLanguage == tag) return; // already active, nothing to do
 
+        // Persist the choice before telling the user it is safe to restart. A failed
+        // settings write used to be swallowed by AppStorage, so the UI changed its
+        // in-memory checkmark but the next process simply loaded the old language.
+        if (!Core.AppStorage.Values.TrySet(nameof(Persistent.AppLanguage), tag, out var saveError))
+        {
+            var saveFailureDialog = new ContentDialog
+            {
+                XamlRoot = Content.XamlRoot,
+                Title = Core.Loc.Get("Language_SaveFailedTitle"),
+                Content = Core.Loc.Format("Language_SaveFailedBody", saveError ?? string.Empty),
+                CloseButtonText = Core.Loc.Get("Common_OK"),
+                DefaultButton = ContentDialogButton.Close
+            };
+
+            await saveFailureDialog.ShowAsync();
+            UpdateLanguageFlyoutSelection();
+            return;
+        }
+
         Persistent.AppLanguage = tag;
-        SaveSettings(); // persist immediately, don't wait for window close
+        UpdateLanguageFlyoutSelection();
 
         var dialog = new ContentDialog
         {
