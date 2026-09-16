@@ -55,7 +55,7 @@ Requisitos reales del usuario final:
 
 El ejecutable se puede renombrar sin romper los recursos de WinUI. La aplicación usa un índice `resources.pri` estable dentro del paquete. Para las funciones que modifican o administran packs se necesita, naturalmente, una instalación compatible de Minecraft Bedrock; para descargar actualizaciones se necesita conexión a Internet.
 
-El binario no tiene firma Authenticode todavía. Puede funcionar sin ella, pero Windows SmartScreen o un antivirus puede advertir sobre un archivo descargado sin reputación. Una release pública debe firmarse con un certificado de firma de código y publicar el SHA-256. Consulta [AUDITORIA_PORTABILIDAD.md](AUDITORIA_PORTABILIDAD.md) para el informe y procedimiento completo.
+El binario no tiene firma Authenticode todavía. Puede funcionar sin ella, pero Windows SmartScreen o un antivirus puede advertir sobre un archivo descargado sin reputación. Una release pública debe firmarse con un certificado de firma de código y publicar el SHA-256.
 
 ## Reportar problemas
 
