@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <RootNamespace>Vanilla_RTX_App</RootNamespace>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
@@ -1491,7 +1491,7 @@
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <AppxBundle>Auto</AppxBundle>
     <HoursBetweenUpdateChecks>24</HoursBetweenUpdateChecks>
-    <AppxPackageDir>C:\Users\Administrator\Desktop\</AppxPackageDir>
+    <AppxPackageDir>$(MSBuildProjectDirectory)\..\artifacts\msix\</AppxPackageDir>
     <PackageCertificateThumbprint>1426D6CA9C80678225E501154069D87676C19DC6</PackageCertificateThumbprint>
     <SignAssembly>False</SignAssembly>
     <Copyright>All Rights Reserved.</Copyright>
@@ -1499,17 +1499,6 @@
     <RepositoryUrl>https://github.com/cubeir/Vanilla-RTX-App</RepositoryUrl>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <AssemblyName>Vanilla RTX App</AssemblyName>
-    <!-- WindowsAppSDK's unpackaged ResourceManager (Core\Loc.cs) resolves the app's .pri
-         file by the CURRENTLY RUNNING .exe's own name, not by this AssemblyName - so
-         renaming the published single .exe (e.g. to the portable release asset name,
-         "Vanilla-RTX-App-Enhanced-Portable-x64.exe") makes it look for a
-         "Vanilla-RTX-App-Enhanced-Portable-x64.pri" that doesn't exist, since the bundled
-         resource index is only ever generated as "Vanilla RTX App.pri" - failing every
-         "ms-appx:///" resource lookup (including MainWindow.xaml itself via
-         Application.LoadComponent) with a XamlParseException, no matter what else is
-         fixed. Forcing a fixed, rename-proof .pri file name here decouples resource
-         resolution from whatever the distributed .exe ends up being named. -->
-    <ProjectPriFileName>resources.pri</ProjectPriFileName>
     <AssemblyOriginatorKeyFile>CubeirSoftware.pfx</AssemblyOriginatorKeyFile>
     <NuGetAuditMode>all</NuGetAuditMode>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -1552,4 +1541,28 @@
     <WarningLevel>1</WarningLevel>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
+
+  <!-- The .NET publish pipeline does not automatically carry every assigned Content/None
+       item into a single-file publish. Mark those assets before the bundle file list is
+       calculated. Compiled XBF resources remain embedded in the PRI; loose XBF copies are
+       neither needed nor published. This mirrors Microsoft's WinUI Gallery workaround. -->
+  <Target Name="AddCopyToPublishDirectoryItems"
+          Condition="'$(PublishSingleFile)' == 'true'"
+          BeforeTargets="GetCopyToPublishDirectoryItems"
+          DependsOnTargets="AssignTargetPaths">
+    <ItemGroup>
+      <_CurrentContentWithTargetPath Include="@(ContentWithTargetPath)" />
+      <ContentWithTargetPath Remove="@(_CurrentContentWithTargetPath)" />
+      <ContentWithTargetPath Include="@(_CurrentContentWithTargetPath)">
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ContentWithTargetPath>
+
+      <_CurrentNoneWithTargetPath Include="@(_NoneWithTargetPath)" />
+      <_NoneWithTargetPath Remove="@(_CurrentNoneWithTargetPath)" />
+      <_NoneWithTargetPath Include="@(_CurrentNoneWithTargetPath)">
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </_NoneWithTargetPath>
+    </ItemGroup>
+  </Target>
+
 </Project>

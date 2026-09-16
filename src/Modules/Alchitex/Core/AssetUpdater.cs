@@ -4,8 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Vanilla_RTX_App.Core;
 using Vanilla_RTX_App.Modules;
-using Windows.Storage;
 
 namespace Vanilla_RTX_App.Modules.Alchitex.Core;
 
@@ -250,7 +250,7 @@ public static class AssetUpdater
     {
         try
         {
-            if (ApplicationData.Current.LocalSettings.Values[KeyNextCheckPrefix + asset.FileName] is not string stamp)
+            if (AppStorage.Values[KeyNextCheckPrefix + asset.FileName] is not string stamp)
                 return true;
 
             // RoundtripKind, or a UTC stamp parses back as local time and every comparison
@@ -276,7 +276,7 @@ public static class AssetUpdater
         {
             var wait = succeeded ? asset.Cooldown : asset.Cooldown / FailureBackoffDivisor;
 
-            ApplicationData.Current.LocalSettings.Values[KeyNextCheckPrefix + asset.FileName] =
+            AppStorage.Values[KeyNextCheckPrefix + asset.FileName] =
                 DateTime.UtcNow.Add(wait).ToString("O", CultureInfo.InvariantCulture);
         }
         catch { }
@@ -292,7 +292,7 @@ public static class AssetUpdater
         {
             try
             {
-                return Path.Combine(ApplicationData.Current.LocalFolder.Path, CacheFolderName);
+                return Path.Combine(AppStorage.LocalFolderPath, CacheFolderName);
             }
             catch
             {

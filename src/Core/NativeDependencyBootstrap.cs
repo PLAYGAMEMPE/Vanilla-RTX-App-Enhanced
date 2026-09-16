@@ -26,61 +26,89 @@ namespace Vanilla_RTX_App.Core;
 /// default DLL search order would find them) got silently overridden back to that nested
 /// path - reproduced with three different MSBuild metadata techniques. Rather than keep
 /// fighting an SDK internal that doesn't behave as documented in this version, this takes
-/// the deterministic path: register that nested folder as an extra DLL search directory via
-/// the Win32 APIs made for exactly this ("app-local" native dependency redistribution),
-/// before anything else in the process gets a chance to load a native module.
+/// the deterministic path: load the bundled runtime DLLs by absolute path before WinAppSDK
+/// needs them. Loaded modules are resolved by base name for later native dependencies, and
+/// this avoids changing the process-wide DLL search policy used by WinUI.
 /// </summary>
 internal static class NativeDependencyBootstrap
 {
-    // LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_USER_DIRS - restricts the
-    // process to the safe, explicit search order (app directory, System32, paths added via
-    // AddDllDirectory) instead of the legacy behavior that also searches the current
-    // directory, and is a prerequisite for AddDllDirectory to affect *implicit* dependency
-    // resolution (not just explicit LoadLibraryEx calls) for modules loaded afterwards.
-    private const int LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000;
-    private const int LOAD_LIBRARY_SEARCH_USER_DIRS = 0x00000400;
+    private static readonly string[] VCRuntimeLibraries =
+    [
+        "vcruntime140.dll",
+        "vcruntime140_1.dll",
+        "vcruntime140_threads.dll",
+        "msvcp140.dll",
+        "msvcp140_1.dll",
+        "msvcp140_2.dll",
+        "msvcp140_atomic_wait.dll",
+        "msvcp140_codecvt_ids.dll",
+        "concrt140.dll",
+        "vccorlib140.dll"
+    ];
 
     /// <summary>
     /// A module initializer runs once, automatically, the moment this assembly is loaded -
     /// before the WinUI/Windows App SDK-generated Main and before anything else in the app
     /// gets a chance to trigger loading a native component. That ordering is the entire
-    /// point: the search path has to be registered before Microsoft.WindowsAppRuntime.dll
-    /// (or any of its native siblings) is loaded, or it's too late for their own implicit
-    /// vcruntime140.dll/msvcp140.dll dependency resolution to see it.
+    /// point: the app-local runtime has to be loaded before Microsoft.WindowsAppRuntime.dll
+    /// (or any of its native siblings) resolves its implicit VC++ dependencies.
     /// </summary>
     [ModuleInitializer]
-    internal static void EnsureBundledVCRedistIsOnTheSearchPath()
+    internal static void PreloadBundledVCRedist()
     {
         try
         {
-            if (!SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_USER_DIRS))
+            var vcredistDir = Path.Combine(
+                AppContext.BaseDirectory,
+                "Runtimes",
+                "win-x64",
+                "vcredist");
+
+            if (!Directory.Exists(vcredistDir))
                 return;
 
-            // AppContext.BaseDirectory correctly resolves to the single-file app's
-            // self-extraction folder at this point (not the original packed .exe's own
-            // folder) - this is standard .NET single-file behavior, not specific to this
-            // fix - so this finds the bundled copies wherever the SDK actually extracted
-            // them to on this machine.
-            var vcredistDir = Path.Combine(AppContext.BaseDirectory, "Runtimes", "win-x64", "vcredist");
-            if (Directory.Exists(vcredistDir))
-                AddDllDirectory(vcredistDir);
-
-            // Harmless, deliberately silent no-op on the MSIX-packaged dev build: that build
-            // isn't single-file, so this folder never exists there, and the packaged Windows
-            // App SDK framework dependency already brings its own correct native runtime.
+            foreach (var libraryName in VCRuntimeLibraries)
+            {
+                var libraryPath = Path.Combine(vcredistDir, libraryName);
+                if (File.Exists(libraryPath))
+                    NativeLibrary.Load(libraryPath);
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // Best-effort only. Worst case if this ever throws (it shouldn't - every API
-            // here is available since Windows 8/Server 2012), the app falls back to
-            // whatever the OS's default DLL search order already provides - i.e. exactly
-            // the pre-fix behavior, not a new regression.
+            ReportNativeRuntimeFailure(ex);
+            throw;
         }
     }
 
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern bool SetDefaultDllDirectories(int directoryFlags);
+    private static void ReportNativeRuntimeFailure(Exception exception)
+    {
+        const string fileName = "native_runtime_startup_error.txt";
+        var logPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Vanilla RTX App",
+            "LocalState",
+            fileName);
 
-    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    private static extern IntPtr AddDllDirectory(string newDirectory);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+            File.WriteAllText(logPath, exception.ToString());
+            MessageBoxW(
+                IntPtr.Zero,
+                "No se pudo cargar el runtime nativo incluido.\n" +
+                "The bundled native runtime could not be loaded.\n\n" +
+                $"Diagnostico / diagnostic log:\n{logPath}",
+                "Vanilla RTX App - Runtime error",
+                0x00000010);
+        }
+        catch
+        {
+            // There is no safer fallback before WinUI itself has initialized.
+        }
+    }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int MessageBoxW(IntPtr windowHandle, string text, string caption, uint type);
+
 }

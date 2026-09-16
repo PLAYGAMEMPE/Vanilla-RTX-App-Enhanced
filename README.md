@@ -29,6 +29,34 @@ Este es un proyecto WinUI 3 / Windows App SDK dirigido a `net10.0-windows`. Nece
 
 Abre `src/Vanilla RTX App.csproj` (o una solución que lo referencie) y compílalo/ejecútalo con `dotnet build` / `dotnet publish`, o desde Visual Studio. Consulta la documentación del repositorio original para una guía completa de funciones — este fork no cambia nada de eso.
 
+## Publicar el ejecutable portable
+
+La distribución para usuarios finales es un único ejecutable x64 autocontenido. Para generarlo desde una copia limpia del repositorio, con el SDK .NET 10.0.401 (o su último parche) instalado solo en el equipo de compilación, ejecuta:
+
+```powershell
+pwsh -File .\scripts\publish-portable.ps1
+```
+
+El resultado queda en `artifacts\portable-x64\Vanilla RTX App.exe`. El script limpia, restaura, publica y valida que la carpeta final contenga exactamente un `.exe` x64. También muestra su SHA-256 para publicarlo junto a cada release.
+
+Antes de distribuir una versión, ejecuta:
+
+```powershell
+pwsh -File .\scripts\test-portable.ps1
+```
+
+La prueba copia y renombra el archivo, lo inicia desde `C:\Windows\Temp` con un `PATH` reducido, valida que WinUI, .NET y el runtime VC++ se carguen desde la extracción interna del ejecutable, y comprueba un cierre normal.
+
+Requisitos reales del usuario final:
+
+- Windows 10 versión 2004 / build 19041 o posterior, o Windows 11, x64.
+- Permiso para escribir en `%LocalAppData%` y en la carpeta temporal del usuario.
+- No se necesita instalar .NET Runtime, Windows App Runtime, Visual C++ Redistributable, Node.js, SDK, Visual Studio ni MSIX.
+
+El ejecutable se puede renombrar sin romper los recursos de WinUI. La aplicación usa un índice `resources.pri` estable dentro del paquete. Para las funciones que modifican o administran packs se necesita, naturalmente, una instalación compatible de Minecraft Bedrock; para descargar actualizaciones se necesita conexión a Internet.
+
+El binario no tiene firma Authenticode todavía. Puede funcionar sin ella, pero Windows SmartScreen o un antivirus puede advertir sobre un archivo descargado sin reputación. Una release pública debe firmarse con un certificado de firma de código y publicar el SHA-256. Consulta [AUDITORIA_PORTABILIDAD.md](AUDITORIA_PORTABILIDAD.md) para el informe y procedimiento completo.
+
 ## Reportar problemas
 
 Los errores o ideas sobre **funcionalidad heredada del original** (todo lo que no esté listado arriba en "Qué cambia este fork") deben reportarse en los [issues del repositorio original](https://github.com/Cubeir/Vanilla-RTX-App/issues) — ahí es donde el mantenedor que puede actuar sobre ellos los verá. Los problemas específicos de los cambios listados arriba son bienvenidos aquí.

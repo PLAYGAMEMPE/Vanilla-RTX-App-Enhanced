@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ public partial class App : Application
     private Window? _window;
     private static Mutex? _mutex = null;
     private static EventWaitHandle? _wakeEvent = null;
+    private static int _fatalErrorReported;
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -28,7 +30,16 @@ public partial class App : Application
     /// </summary>
     public App()
     {
-        InitializeComponent();
+        try
+        {
+            InitializeComponent();
+        }
+        catch (Exception ex)
+        {
+            ReportFatalError("Application initialization", ex);
+            throw;
+        }
+
         TraceManager.Initialize();
         _ = OnlineTexts.TriggerUpdateAsync(); // Silent PSA Update, hopefully by the time the startup sequence is finished, we have new PSAs to show!
 
@@ -36,7 +47,7 @@ public partial class App : Application
         // 1. Catches unhandled exceptions on the UI thread from any window
         this.UnhandledException += (s, e) =>
         {
-            WriteCrashLog("UI Thread", $"[{e.Exception.GetType().FullName} / 0x{e.Exception.HResult:X8}] {e.Message}", e.Exception.ToString());
+            ReportFatalError("UI Thread", e.Exception);
             // intentionally not setting e.Handled = true
             // let it crash naturally so WER still gets the dump
         };
@@ -54,7 +65,10 @@ public partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += (s, e) =>
         {
             var ex = e.ExceptionObject as Exception;
-            WriteCrashLog("Background Thread", ex?.Message ?? "Unknown", ex?.ToString() ?? e.ExceptionObject?.ToString() ?? "No details");
+            if (ex != null)
+                ReportFatalError("Background Thread", ex);
+            else
+                WriteCrashLog("Background Thread", "Unknown", e.ExceptionObject?.ToString() ?? "No details");
             // can't prevent termination here, but log is written
         };
     }
@@ -104,10 +118,41 @@ public partial class App : Application
 
         // Brief delay before Activate() to allow InitializeComponent() and lamp animators
         // to finish rendering before the window becomes visible, preventing a black background briefly appearing or splash images not loading in time.
-        _window = new MainWindow(); // -> This kicks off the stuff in MainWindow actually running, which also calls for XAML to be initialized
+        _window = new MainWindow();
         await Task.Delay(175); // A delay ensures the xaml is constructed before window tries to appear.
         _window.Activate();
     }
+
+    private static void ReportFatalError(string source, Exception exception)
+    {
+        if (Interlocked.Exchange(ref _fatalErrorReported, 1) != 0)
+            return;
+
+        WriteCrashLog(
+            source,
+            $"[{exception.GetType().FullName} / 0x{exception.HResult:X8}] {exception.Message}",
+            exception.ToString());
+
+        var logPath = Path.Combine(Core.AppStorage.LocalFolderPath, "last_session_crash_log.txt");
+        var text =
+            "Vanilla RTX App no pudo iniciarse correctamente.\n" +
+            "The application could not start correctly.\n\n" +
+            $"{exception.Message}\n\n" +
+            "Diagnostico / diagnostic log:\n" +
+            logPath;
+
+        try
+        {
+            MessageBoxW(IntPtr.Zero, text, "Vanilla RTX App - Startup error", 0x00000010);
+        }
+        catch
+        {
+            // The crash log remains available if even the native fallback dialog fails.
+        }
+    }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int MessageBoxW(IntPtr windowHandle, string text, string caption, uint type);
 
     public static void WriteCrashLog(string source, string message, string detail)
     {
@@ -123,10 +168,15 @@ public partial class App : Application
                 $"Source:    {source}\n" +
                 $"Time:      {DateTime.Now}\n" +
                 $"Message:   {message}\n" +
+                $"Executable: {Environment.ProcessPath ?? "unknown"}\n" +
+                $"BaseDir:    {AppContext.BaseDirectory}\n" +
+                $"WorkingDir: {Environment.CurrentDirectory}\n" +
+                $"WinAppSDK:  {Environment.GetEnvironmentVariable("MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY") ?? "not set"}\n" +
+                $"WinAppPID:  {Environment.GetEnvironmentVariable("MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY_PID") ?? "not set"}\n" +
                 $"Detail:\n{detail}\n\n" +
                 $"{TraceManager.GetAllTraceLogs()}\n\n");
         }
-        catch { /* we're truly fucked then */ }
+        catch { /* Last-resort logging must never throw. */ }
     }
 
     // A fixed name is enough for its only purpose (a single-instance mutex/wake-event) -
